@@ -3,18 +3,18 @@
 import { useEffect, useState } from 'react'
 import Image from "next/image";
 import styles from "./page.module.css";
-import Navigate from '@/lib/Navigate';
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const [data, setData] = useState(null);
+  const router = useRouter();
+
   useEffect(() => {
-    window.DigitalSignageTriggerCallback = function(data) {
-      setData(data);
-    }
-  }, [])
+    window.DigitalSignageTriggerCallback = (data) => {
+      router.push(`/${data}`);
+    };
+  }, [router]);
   return (
     <div className={styles.page}>
-      <Navigate />
       <main className={styles.main}>
         <Image
           className={styles.logo}
@@ -26,7 +26,7 @@ export default function Home() {
         />
         <ol>
           <li>
-            test2 :{data}
+            test3 :
           </li>
           <li>Save and see your changes instantly.</li>
         </ol>
