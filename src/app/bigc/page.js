@@ -19,7 +19,7 @@ export default function DeerTummyPage() {
         component="h1"
         sx={{ textAlign: "center", fontWeight: "bold" }}
       >
-        Deer Tummy Page
+        Big C Page  
       </Typography>
     </Box>
   );
