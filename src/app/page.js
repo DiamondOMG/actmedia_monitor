@@ -1,7 +1,16 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import Image from "next/image";
 import styles from "./page.module.css";
 
 export default function Home() {
+  const [data, setData] = useState(null);
+  useEffect(() => {
+    window.DigitalSignageTriggerCallback = function(data) {
+      setData(data);
+    }
+  }, [])
   return (
     <div className={styles.page}>
       <main className={styles.main}>
@@ -15,7 +24,7 @@ export default function Home() {
         />
         <ol>
           <li>
-            Get started by editing <code>src/app/page.js</code>.
+            {data}
           </li>
           <li>Save and see your changes instantly.</li>
         </ol>
