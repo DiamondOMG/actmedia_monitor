@@ -1,19 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import Image from "next/image";
 import styles from "./page.module.css";
-import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const router = useRouter();
-  const [data, setData] = useState(null);
-  useEffect(() => {
-    window.DigitalSignageTriggerCallback = (data) => {
-      setData(data);
-      router.push(`/${data}`);
-    };
-  }, [router]);
   return (
     <div className={styles.page}>
       <main className={styles.main}>
@@ -27,7 +17,7 @@ export default function Home() {
         />
         <ol>
           <li>
-            test4 : {data}
+            test5
           </li>
           <li>Save and see your changes instantly.</li>
         </ol>
