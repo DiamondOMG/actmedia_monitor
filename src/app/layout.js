@@ -1,4 +1,3 @@
-
 import Navigate from "@/lib/Navigate";
 import "./globals.css";
 
@@ -10,8 +9,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <Navigate />
-      <body>{children}</body>
+      <body>
+        <Navigate />
+        {children}
+      </body>
     </html>
   );
 }
