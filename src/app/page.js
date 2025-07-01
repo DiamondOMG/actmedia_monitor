@@ -7,9 +7,10 @@ import { useRouter } from "next/navigation";
 
 export default function Home() {
   const router = useRouter();
-
+  const [data, setData] = useState(null);
   useEffect(() => {
     window.DigitalSignageTriggerCallback = (data) => {
+      setData(data);
       router.push(`/${data}`);
     };
   }, [router]);
@@ -26,7 +27,7 @@ export default function Home() {
         />
         <ol>
           <li>
-            test3 :
+            test4 : {data}
           </li>
           <li>Save and see your changes instantly.</li>
         </ol>
