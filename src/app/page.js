@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Image from "next/image";
 import styles from "./page.module.css";
+import Navigate from '@/lib/Navigate';
 
 export default function Home() {
   const [data, setData] = useState(null);
@@ -13,6 +14,7 @@ export default function Home() {
   }, [])
   return (
     <div className={styles.page}>
+      <Navigate />
       <main className={styles.main}>
         <Image
           className={styles.logo}
@@ -24,7 +26,7 @@ export default function Home() {
         />
         <ol>
           <li>
-            {data}
+            test2 :{data}
           </li>
           <li>Save and see your changes instantly.</li>
         </ol>
