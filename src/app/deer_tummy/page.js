@@ -1,24 +1,25 @@
 "use client";
-
+import { useEffect, useState } from "react";
 import React from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 
 export default function DeerTummyPage() {
+  const [data, setData] = useState(null);
+  useEffect(() => {
+    window.DigitalSignageTriggerCallback = function (data) {
+      setData(data);
+    };
+  }, []);
   return (
     <Box
       sx={{
         width: "100%",
-        aspectRatio: "16 / 9",
+        minHeight: "100vh",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        bgcolor: "background.paper",
-        boxShadow: 3,
-        borderRadius: 2,
-        p: { xs: 2, md: 4 },
-        m: "auto",
-        maxWidth: 900,
+        p: 2,
       }}
     >
       <Typography
@@ -26,7 +27,7 @@ export default function DeerTummyPage() {
         component="h1"
         sx={{ textAlign: "center", fontWeight: "bold" }}
       >
-        Deer Tummy Page
+        Deer Tummy Page : {data}
       </Typography>
     </Box>
   );
