@@ -124,10 +124,76 @@ const TotalCard = ({ data }) => (
         {data.Displays}
       </Typography>
     </Box>
-    <Box display="flex" gap={1} mt={2}>
-      <SmallStatBox value={data["Displays-Online"]} color="#008080" />
-      <SmallStatBox value={data["Displays-Offline (1+ hour)"]} color="#ff6347" />
-      <SmallStatBox value={data["Displays-Offline (1+ day)"]} color="#dc143c" />
+<Box display="flex" gap={1} mt={2}>
+      <Box
+        sx={{
+          bgcolor: "#008080",
+          flex: 1,
+          borderRadius: 1,
+          color: "#fff",
+          fontWeight: 700,
+          fontSize: 28,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          height: 90,
+          p: 1,
+        }}
+      >
+        <Typography sx={{ fontSize: 12, fontWeight: 500, mb: 0.5 }}>
+          Online 
+        </Typography>
+        <Typography sx={{ fontSize: 32, fontWeight: 700 }}>
+          {data["Displays-Online"]}
+        </Typography>
+      </Box>
+      <Box
+        sx={{
+          bgcolor: "#ff6347",
+          flex: 1,
+          borderRadius: 1,
+          color: "#fff",
+          fontWeight: 700,
+          fontSize: 28,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          height: 90,
+          p: 1,
+        }}
+      >
+        <Typography sx={{ fontSize: 12, fontWeight: 500, mb: 0.5 }}>
+          Online 1h+
+        </Typography>
+        <Typography sx={{ fontSize: 32, fontWeight: 700 }}>
+          {data["Displays-Offline (1+ hour)"]}
+        </Typography>
+      </Box>
+      <Box
+        sx={{
+          bgcolor: "#dc143c",
+          flex: 1,
+          borderRadius: 1,
+          color: "#fff",
+          fontWeight: 700,
+          fontSize: 28,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          height: 90,
+          p: 1,
+        }}
+      >
+        <Typography sx={{ fontSize: 12, fontWeight: 500, mb: 0.5 }}>
+          Offline 
+        </Typography>
+        <Typography sx={{ fontSize: 32, fontWeight: 700 }}>
+          {data["Displays-Offline (1+ day)"]}
+        </Typography>
+      </Box>
     </Box>
     <Box
       sx={{
@@ -150,9 +216,75 @@ const TotalCard = ({ data }) => (
       </Typography>
     </Box>
     <Box display="flex" gap={1} mt={2}>
-      <SmallStatBox value={data["Box-Online"]} color="#008080" />
-      <SmallStatBox value={data["Box-Offline (1+ hour)"]} color="#ff6347" />
-      <SmallStatBox value={data["Box-Offline (1+ day)"]} color="#dc143c" />
+      <Box
+        sx={{
+          bgcolor: "#008080",
+          flex: 1,
+          borderRadius: 1,
+          color: "#fff",
+          fontWeight: 700,
+          fontSize: 28,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          height: 90,
+          p: 1,
+        }}
+      >
+        <Typography sx={{ fontSize: 12, fontWeight: 500, mb: 0.5 }}>
+          Online 
+        </Typography>
+        <Typography sx={{ fontSize: 32, fontWeight: 700 }}>
+          {data["Box-Online"]}
+        </Typography>
+      </Box>
+      <Box
+        sx={{
+          bgcolor: "#ff6347",
+          flex: 1,
+          borderRadius: 1,
+          color: "#fff",
+          fontWeight: 700,
+          fontSize: 28,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          height: 90,
+          p: 1,
+        }}
+      >
+        <Typography sx={{ fontSize: 12, fontWeight: 500, mb: 0.5 }}>
+          Online 1h+
+        </Typography>
+        <Typography sx={{ fontSize: 32, fontWeight: 700 }}>
+          {data["Box-Offline (1+ hour)"]}
+        </Typography>
+      </Box>
+      <Box
+        sx={{
+          bgcolor: "#dc143c",
+          flex: 1,
+          borderRadius: 1,
+          color: "#fff",
+          fontWeight: 700,
+          fontSize: 28,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          height: 90,
+          p: 1,
+        }}
+      >
+        <Typography sx={{ fontSize: 12, fontWeight: 500, mb: 0.5 }}>
+          Offline 
+        </Typography>
+        <Typography sx={{ fontSize: 32, fontWeight: 700 }}>
+          {data["Box-Offline (1+ day)"]}
+        </Typography>
+      </Box>
     </Box>
   </Card>
 );
@@ -242,7 +374,7 @@ export default function DeerTummyPage() {
             marginLeft: 1,
           }}
         >
-          <Box width="100%" height="80%">
+          <Box width="100%" height="95%">
             {total && <TotalCard data={total} />}
           </Box>
         </Box>
