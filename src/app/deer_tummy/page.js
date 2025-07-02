@@ -1,7 +1,6 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Typography, Box, Card } from "@mui/material";
-import { exampleData } from "@/lib/makeData";
 
 // Box ย่อยสำหรับแสดงตัวเลข (Online, Offline)
 const SmallStatBox = ({ value, color }) => (
@@ -12,14 +11,13 @@ const SmallStatBox = ({ value, color }) => (
       width: "100%",
       textAlign: "center",
       color: "#fff",
-      py: 0.5, // Reduced height
+      py: 0.5,
       fontWeight: "bold",
     }}
   >
     <Typography variant="body2" sx={{ fontSize: "0.75rem" }}>
       {value}
-    </Typography>{" "}
-    {/* Reduced font size */}
+    </Typography>
   </Box>
 );
 
@@ -64,7 +62,7 @@ const FullCard = ({ data }) => (
       borderRadius: 2,
       width: "100%",
       height: "100%",
-      p: 1, // Reduced padding
+      p: 1,
       display: "flex",
       flexDirection: "column",
     }}
@@ -89,10 +87,117 @@ const FullCard = ({ data }) => (
   </Card>
 );
 
+// Card สำหรับ Total (กล่อง field สูงขึ้น)
+const TotalCard = ({ data }) => (
+  <Card
+    sx={{
+      bgcolor: "#2c2c2c",
+      color: "white",
+      borderRadius: 2,
+      width: "100%",
+      height: "100%",
+      p: 1,
+      display: "flex",
+      flexDirection: "column",
+    }}
+  >
+    <Typography variant="h6" fontWeight="bold" mb={1} sx={{ fontSize: "1rem" }}>
+      {data.Name}
+    </Typography>
+    <Box
+      sx={{
+        bgcolor: "#1f1f1f",
+        borderRadius: 1,
+        my: 1,
+        textAlign: "center",
+        py: 2,
+        minHeight: 80,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+      }}
+    >
+      <Typography variant="subtitle2" color="#bbb" sx={{ fontSize: "1rem" }}>
+        Displays
+      </Typography>
+      <Typography variant="h3" color="#fff" sx={{ fontWeight: "bold" }}>
+        {data.Displays}
+      </Typography>
+    </Box>
+    <Box display="flex" gap={1} mt={2}>
+      <SmallStatBox value={data["Displays-Online"]} color="#008080" />
+      <SmallStatBox value={data["Displays-Offline (1+ hour)"]} color="#ff6347" />
+      <SmallStatBox value={data["Displays-Offline (1+ day)"]} color="#dc143c" />
+    </Box>
+    <Box
+      sx={{
+        bgcolor: "#1f1f1f",
+        borderRadius: 1,
+        my: 1,
+        textAlign: "center",
+        py: 2,
+        minHeight: 80,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+      }}
+    >
+      <Typography variant="subtitle2" color="#bbb" sx={{ fontSize: "1rem" }}>
+        TV boxes
+      </Typography>
+      <Typography variant="h3" color="#fff" sx={{ fontWeight: "bold" }}>
+        {data.Box}
+      </Typography>
+    </Box>
+    <Box display="flex" gap={1} mt={2}>
+      <SmallStatBox value={data["Box-Online"]} color="#008080" />
+      <SmallStatBox value={data["Box-Offline (1+ hour)"]} color="#ff6347" />
+      <SmallStatBox value={data["Box-Offline (1+ day)"]} color="#dc143c" />
+    </Box>
+  </Card>
+);
+
 // หน้าหลัก
 export default function DeerTummyPage() {
-  const total = exampleData.find((x) => x.Name === "Total");
-  const others = exampleData.filter((x) => x.Name !== "Total");
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch("/api/deer_tummy", { cache: "no-store" });
+        const json = await res.json();
+        setData(json);
+      } catch (e) {
+        setData([]);
+      }
+      setLoading(false);
+    };
+    fetchData();
+    const interval = setInterval(fetchData, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          width: "100vw",
+          height: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          bgcolor: "#111",
+        }}
+      >
+        <Typography color="#fff">Loading...</Typography>
+      </Box>
+    );
+  }
+
+  const total = data.find((x) => x.Name === "Total");
+  const others = data.filter((x) => x.Name !== "Total");
 
   return (
     <Box
@@ -111,9 +216,9 @@ export default function DeerTummyPage() {
           width: "100%",
           height: "5vh",
           bgcolor: "#2c2c2c",
-          fontSize: "1rem", // Reduced font size
+          fontSize: "1rem",
           color: "#fff",
-          padding: 0.5, // Reduced padding
+          padding: 0.5,
         }}
       >
         DeerTummy
@@ -134,11 +239,11 @@ export default function DeerTummyPage() {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            marginLeft: 1, // Reduced margin
+            marginLeft: 1,
           }}
         >
-          <Box width="100%" height="50%">
-            <FullCard data={total} />
+          <Box width="100%" height="80%">
+            {total && <TotalCard data={total} />}
           </Box>
         </Box>
 
@@ -150,8 +255,8 @@ export default function DeerTummyPage() {
             display: "grid",
             gridTemplateColumns: "repeat(3, 1fr)",
             gridTemplateRows: "repeat(2, 1fr)",
-            gap: 1, // Reduced gap
-            p: 1, // Reduced padding
+            gap: 1,
+            p: 1,
           }}
         >
           {others.map((item, idx) => (
