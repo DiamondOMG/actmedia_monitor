@@ -1,242 +1,164 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React from "react";
+import { Typography, Box, Card } from "@mui/material";
+import { exampleData } from "@/lib/makeData";
 
-const Dashboard = () => {
-  const [screenSize, setScreenSize] = useState({ width: 1920, height: 1080 });
+// Box ย่อยสำหรับแสดงตัวเลข (Online, Offline)
+const SmallStatBox = ({ value, color }) => (
+  <Box
+    sx={{
+      bgcolor: color,
+      borderRadius: 1,
+      width: "100%",
+      textAlign: "center",
+      color: "#fff",
+      py: 0.5, // Reduced height
+      fontWeight: "bold",
+    }}
+  >
+    <Typography variant="body2" sx={{ fontSize: "0.75rem" }}>
+      {value}
+    </Typography>{" "}
+    {/* Reduced font size */}
+  </Box>
+);
 
-  useEffect(() => {
-    const updateScreenSize = () => {
-      setScreenSize({ width: window.innerWidth, height: window.innerHeight });
-    };
-    updateScreenSize();
-    window.addEventListener("resize", updateScreenSize);
-    return () => window.removeEventListener("resize", updateScreenSize);
-  }, []);
+// Section: Displays / TV boxes
+const Section = ({ label, value, online, offline1h, offline1d }) => (
+  <Box mb={1}>
+    <Typography
+      variant="subtitle2"
+      fontWeight="bold"
+      color="#fff"
+      sx={{ fontSize: "0.8rem" }}
+    >
+      {label}
+    </Typography>
+    <Box
+      sx={{
+        bgcolor: "#1f1f1f",
+        borderRadius: 1,
+        my: 0.5,
+        textAlign: "center",
+        py: 0.5,
+      }}
+    >
+      <Typography variant="h6" color="#fff" sx={{ fontSize: "1.2rem" }}>
+        {value}
+      </Typography>
+    </Box>
+    <Box display="flex" gap={0.5}>
+      <SmallStatBox value={online} color="#008080" />
+      <SmallStatBox value={offline1h} color="#ff6347" />
+      <SmallStatBox value={offline1d} color="#dc143c" />
+    </Box>
+  </Box>
+);
 
-  // Mock data (ใช้แค่ 8 card แรก)
-  const mockData = [
-    {
-      title: "Total",
-      displays: 45,
-      tvBoxes: 45,
-      online: 42,
-      offline1h: 2,
-      offline1day: 1,
-    },
-    {
-      title: "TV Endgon",
-      displays: 12,
-      tvBoxes: 12,
-      online: 11,
-      offline1h: 1,
-      offline1day: 0,
-    },
-    {
-      title: "KioskPowerBank",
-      displays: 8,
-      tvBoxes: 8,
-      online: 8,
-      offline1h: 0,
-      offline1day: 0,
-    },
-    {
-      title: "Pillar",
-      displays: 6,
-      tvBoxes: 6,
-      online: 5,
-      offline1h: 1,
-      offline1day: 0,
-    },
-    {
-      title: "Kiosk",
-      displays: 10,
-      tvBoxes: 10,
-      online: 9,
-      offline1h: 0,
-      offline1day: 1,
-    },
-    {
-      title: "TV Walkway",
-      displays: 7,
-      tvBoxes: 7,
-      online: 7,
-      offline1h: 0,
-      offline1day: 0,
-    },
-    {
-      title: "VideoWall",
-      displays: 2,
-      tvBoxes: 2,
-      online: 2,
-      offline1h: 0,
-      offline1day: 0,
-    },
-    // {
-    //   title: "Spare",
-    //   displays: 0,
-    //   tvBoxes: 0,
-    //   online: 0,
-    //   offline1h: 0,
-    //   offline1day: 0,
-    // },
-  ];
+// การ์ดหลักแต่ละอัน
+const FullCard = ({ data }) => (
+  <Card
+    sx={{
+      bgcolor: "#2c2c2c",
+      color: "white",
+      borderRadius: 2,
+      width: "100%",
+      height: "100%",
+      p: 1, // Reduced padding
+      display: "flex",
+      flexDirection: "column",
+    }}
+  >
+    <Typography variant="h6" fontWeight="bold" mb={1} sx={{ fontSize: "1rem" }}>
+      {data.Name}
+    </Typography>
+    <Section
+      label="Displays"
+      value={data.Displays}
+      online={data["Displays-Online"]}
+      offline1h={data["Displays-Offline (1+ hour)"]}
+      offline1d={data["Displays-Offline (1+ day)"]}
+    />
+    <Section
+      label="TV boxes"
+      value={data.Box}
+      online={data["Box-Online"]}
+      offline1h={data["Box-Offline (1+ hour)"]}
+      offline1d={data["Box-Offline (1+ day)"]}
+    />
+  </Card>
+);
 
-  const cardStyle = {
-    background: "#2d2d2d",
-    borderRadius: 8,
-    padding: 16,
-    color: "#fff",
-    display: "flex",
-    flexDirection: "column",
-    gap: 8,
-    minWidth: 0,
-  };
+// หน้าหลัก
+export default function DeerTummyPage() {
+  const total = exampleData.find((x) => x.Name === "Total");
+  const others = exampleData.filter((x) => x.Name !== "Total");
 
   return (
-    <>
-      {/* Pixel Debug Box */}
-      <div
-        style={{
-          position: "fixed",
-          top: 8,
-          right: 8,
-          background: "rgba(0,0,0,0.7)",
+    <Box
+      sx={{
+        width: "100%",
+        height: "100%",
+        display: "flex-column",
+        background: "rgba(0, 0, 0, 0.99)",
+      }}
+    >
+      <Typography
+        variant="h5"
+        sx={{
+          textAlign: "center",
+          fontWeight: "bold",
+          width: "100%",
+          height: "5vh",
+          bgcolor: "#2c2c2c",
+          fontSize: "1rem", // Reduced font size
           color: "#fff",
-          fontSize: 12,
-          padding: "4px 10px",
-          borderRadius: 6,
-          zIndex: 9999,
-          fontFamily: "monospace",
+          padding: 0.5, // Reduced padding
         }}
       >
-        {screenSize.width} x {screenSize.height}
-      </div>
-      <div
-        style={{
-          background: "#1a1a1a",
-          minHeight: "100vh",
-          padding: 24,
-          fontFamily: "Arial, sans-serif",
-        }}
-      >
-        <div
-          style={{
-            color: "#fff",
-            fontWeight: "bold",
-            fontSize: 24,
-            marginBottom: 16,
-          }}
-        >
-          Dear Tummy - Network status{" "}
-          <span
-            style={{ color: "#ffc107", fontWeight: "normal", fontSize: 16 }}
-          >
-            (Last updated 02/07/2025 09:13:30)
-          </span>
-        </div>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
-            gridTemplateRows: "repeat(2, 1fr)",
-            gap: 16,
-          }}
-        >
-          {mockData.slice(0, 8).map((section, i) => (
-            <div key={i} style={cardStyle}>
-              <div style={{ fontWeight: "bold", fontSize: 18 }}>
-                {section.title}
-              </div>
-              <div style={{ color: "#9e9e9e", fontSize: 14 }}>Displays</div>
-              <div
-                style={{
-                  fontSize: 32,
-                  fontWeight: "bold",
-                  textAlign: "center",
-                }}
-              >
-                {section.displays}
-              </div>
-              <div style={{ display: "flex", gap: 4 }}>
-                <div
-                  style={{
-                    flex: 1,
-                    background: "#26a69a",
-                    borderRadius: 4,
-                    textAlign: "center",
-                  }}
-                >
-                  {section.online}
-                </div>
-                <div
-                  style={{
-                    flex: 1,
-                    background: "#ff9800",
-                    borderRadius: 4,
-                    textAlign: "center",
-                  }}
-                >
-                  {section.offline1h}
-                </div>
-                <div
-                  style={{
-                    flex: 1,
-                    background: "#f44336",
-                    borderRadius: 4,
-                    textAlign: "center",
-                  }}
-                >
-                  {section.offline1day}
-                </div>
-              </div>
-              <div style={{ color: "#9e9e9e", fontSize: 14 }}>TV boxes</div>
-              <div
-                style={{
-                  fontSize: 32,
-                  fontWeight: "bold",
-                  textAlign: "center",
-                }}
-              >
-                {section.tvBoxes}
-              </div>
-              <div style={{ display: "flex", gap: 4 }}>
-                <div
-                  style={{
-                    flex: 1,
-                    background: "#26a69a",
-                    borderRadius: 4,
-                    textAlign: "center",
-                  }}
-                >
-                  {section.online}
-                </div>
-                <div
-                  style={{
-                    flex: 1,
-                    background: "#ff9800",
-                    borderRadius: 4,
-                    textAlign: "center",
-                  }}
-                >
-                  {section.offline1h}
-                </div>
-                <div
-                  style={{
-                    flex: 1,
-                    background: "#f44336",
-                    borderRadius: 4,
-                    textAlign: "center",
-                  }}
-                >
-                  {section.offline1day}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </>
-  );
-};
+        DeerTummy
+      </Typography>
 
-export default Dashboard;
+      <Box
+        sx={{
+          width: "100%",
+          height: "95vh",
+          display: "flex",
+        }}
+      >
+        {/* ซ้าย: Total */}
+        <Box
+          sx={{
+            width: "30%",
+            height: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            marginLeft: 1, // Reduced margin
+          }}
+        >
+          <Box width="100%" height="50%">
+            <FullCard data={total} />
+          </Box>
+        </Box>
+
+        {/* ขวา: 6 การ์ด */}
+        <Box
+          sx={{
+            width: "70%",
+            height: "100%",
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gridTemplateRows: "repeat(2, 1fr)",
+            gap: 1, // Reduced gap
+            p: 1, // Reduced padding
+          }}
+        >
+          {others.map((item, idx) => (
+            <FullCard key={idx} data={item} />
+          ))}
+        </Box>
+      </Box>
+    </Box>
+  );
+}
