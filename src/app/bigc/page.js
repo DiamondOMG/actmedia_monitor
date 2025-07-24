@@ -309,79 +309,96 @@ export default function NetworkStatus() {
       <Box
         sx={{
           bgcolor: "background.default",
-          width: "961px",
-          height: "541px",
+          width: "100%",
+          height: "100vh",
           color: "text.primary",
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
         }}
       >
-        <AppBar position="static" color="primary" elevation={0}>
-          <Toolbar sx={{ minHeight: 32, px: 2, justifyContent: "center" }}>
-            <Typography variant="h6" sx={{ fontSize: "1.1rem", fontWeight: 500 }}>
-              Big C Thailand
-            </Typography>
-          </Toolbar>
-        </AppBar>
-
         <Box
           sx={{
-            flexGrow: 1,
-            p: 1,
+            bgcolor: "background.default",
+            width: "961px",
+            height: "541px",
+            color: "text.primary",
+            display: "flex",
+            flexDirection: "column",
             overflow: "hidden",
-            height: "calc(100% - 48px)",
           }}
         >
-          {loading ? (
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "100%",
-              }}
-            >
-              <CircularProgress />
-            </Box>
-          ) : error ? (
-            <Box
-              sx={{
-                p: 2,
-                borderRadius: 2,
-                bgcolor: "error.dark",
-                color: "white",
-                textAlign: "center",
-              }}
-            >
-              <Typography variant="h6">Error loading dashboard data</Typography>
-              <Typography variant="body1">{error}</Typography>
-            </Box>
-          ) : (
-            <Grid
-              container
-              spacing={1}
-              sx={{
-                height: "100%",
-                width: "100%",
+          <AppBar position="static" color="primary" elevation={0}>
+            <Toolbar sx={{ minHeight: 32, px: 2, justifyContent: "center" }}>
+              <Typography
+                variant="h6"
+                sx={{ fontSize: "1.1rem", fontWeight: 500 }}
+              >
+                Big C Thailand
+              </Typography>
+            </Toolbar>
+          </AppBar>
 
-                display: "grid",
-                gridTemplateColumns: "repeat(4, 1fr)", // แบ่งเป็น 4 ส่วนเท่าๆ กัน
-              }}
-            >
-              {dashboardData.map((section, index) => (
-                <Grid
-                  item
-                  key={index}
-                  sx={{
-                    height: "100%",
-                  }}
-                >
-                  <StatusSection data={section} />
-                </Grid>
-              ))}
-            </Grid>
-          )}
+          <Box
+            sx={{
+              flexGrow: 1,
+              p: 1,
+              overflow: "hidden",
+              height: "calc(100% - 48px)",
+            }}
+          >
+            {loading ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "100%",
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            ) : error ? (
+              <Box
+                sx={{
+                  p: 2,
+                  borderRadius: 2,
+                  bgcolor: "error.dark",
+                  color: "white",
+                  textAlign: "center",
+                }}
+              >
+                <Typography variant="h6">
+                  Error loading dashboard data
+                </Typography>
+                <Typography variant="body1">{error}</Typography>
+              </Box>
+            ) : (
+              <Grid
+                container
+                spacing={1}
+                sx={{
+                  height: "100%",
+                  width: "100%",
+
+                  display: "grid",
+                  gridTemplateColumns: "repeat(4, 1fr)", // แบ่งเป็น 4 ส่วนเท่าๆ กัน
+                }}
+              >
+                {dashboardData.map((section, index) => (
+                  <Grid
+                    item
+                    key={index}
+                    sx={{
+                      height: "100%",
+                    }}
+                  >
+                    <StatusSection data={section} />
+                  </Grid>
+                ))}
+              </Grid>
+            )}
+          </Box>
         </Box>
       </Box>
     </ThemeProvider>
