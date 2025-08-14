@@ -7,12 +7,8 @@ const password = process.env.PASSWORDOMG;
 
 const apiUrls = [
   {
-    key: "Pillar",
-    url: "https://stacks.targetr.net/rest-api/v1/screens?groupId=1391C0BD4BD7F7",
-  },
-  {
-    key: "Walkway  Double Side",
-    url: "https://stacks.targetr.net/rest-api/v1/screens?groupId=135BAEDE094558",
+    key: "Arch",
+    url: "https://stacks.targetr.net/rest-api/v1/screens?groupId=1333726FA278D0",
   },
   {
     key: "WallSync 1x4 Single Side",
@@ -23,8 +19,12 @@ const apiUrls = [
     url: "https://stacks.targetr.net/rest-api/v1/screens?groupId=1350A5739AE50C",
   },
   {
-    key: "Arch",
-    url: "https://stacks.targetr.net/rest-api/v1/screens?groupId=1333726FA278D0",
+    key: "Pillar",
+    url: "https://stacks.targetr.net/rest-api/v1/screens?groupId=1391C0BD4BD7F7",
+  },
+  {
+    key: "Walkway  Double Side",
+    url: "https://stacks.targetr.net/rest-api/v1/screens?groupId=135BAEDE094558",
   },
   {
     key: "Total",
