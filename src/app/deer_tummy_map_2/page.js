@@ -12,13 +12,13 @@ const darkTheme = createTheme({
 
 export default function SimpleUI() {
   const items = [
-    { name: "screen", macaddress: "000000000020", status: "online", position_x: "4%", position_y: "55%" },
-    { name: "screen", macaddress: "000000000021", status: "online", position_x: "7.4%", position_y: "55%" },
-    { name: "screen", macaddress: "000000000022", status: "online", position_x: "11%", position_y: "55%" },
-    { name: "screen", macaddress: "000000000023", status: "online", position_x: "30%", position_y: "50%" },
-    { name: "screen", macaddress: "000000000024", status: "online", position_x: "30%", position_y: "43%" },
-    { name: "screen", macaddress: "000000000025", status: "online", position_x: "69%", position_y: "47%" },
-    { name: "screen", macaddress: "000000000026", status: "online", position_x: "94%", position_y: "47%" },
+    { name: "screen", macaddress: "06BC202512E0", status: "online", position_x: "4%", position_y: "55%" },
+    { name: "screen", macaddress: "06BC20251283", status: "online", position_x: "7.4%", position_y: "55%" },
+    { name: "screen", macaddress: "06BC20251273", status: "online", position_x: "11%", position_y: "55%" },
+    { name: "screen", macaddress: "06BC202514B4", status: "online", position_x: "30%", position_y: "50%" },
+    { name: "screen", macaddress: "06BC202514E5", status: "online", position_x: "30%", position_y: "43%" },
+    { name: "screen", macaddress: "BCFD0CA12D64", status: "online", position_x: "69%", position_y: "47%" },
+    { name: "screen", macaddress: "BCFD0CF7DA90", status: "online", position_x: "94%", position_y: "47%" },
 
     
     // Add more objects as needed
