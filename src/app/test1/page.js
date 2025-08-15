@@ -172,11 +172,12 @@ export default function SimpleUI() {
     <ThemeProvider theme={darkTheme}>
       <Box
         sx={{
-          backgroundImage: "url('top_full.png')",
+          backgroundImage: "url('top_full1.jpg')",
           backgroundPosition: "center",
-          backgroundSize: "cover",
-          width: "961px",
-          height: "541px",
+          backgroundSize: "contain", // เปลี่ยนจาก "cover" เป็น "contain" เพื่อแสดงภาพทั้งหมด
+          backgroundRepeat: "no-repeat", // ป้องกันการซ้ำของภาพ
+          width: "961px", // ปรับให้เต็มความกว้างของ container
+          height: "541px", // คงความสูงไว้ หรือปรับตามต้องการ
           position: "relative",
         }}
       >
