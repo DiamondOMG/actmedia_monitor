@@ -172,7 +172,7 @@ export default function SimpleUI() {
     <ThemeProvider theme={darkTheme}>
       <Box
         sx={{
-          backgroundImage: "url('top_full1.jpg')",
+          backgroundImage: "url('topf1.png')",
           backgroundPosition: "center",
           backgroundSize: "contain", // เปลี่ยนจาก "cover" เป็น "contain" เพื่อแสดงภาพทั้งหมด
           backgroundRepeat: "no-repeat", // ป้องกันการซ้ำของภาพ
