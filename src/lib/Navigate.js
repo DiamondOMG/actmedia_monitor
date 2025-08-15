@@ -7,7 +7,7 @@ export default function Navigate() {
   const pathname = usePathname();
 
   // กำหนด path ทั้งหมดที่ต้องการให้วน
-  const paths = ["/deer_tummy", "/bigc", "/tops", "/"];
+  const paths = ["/deer_tummy", "/bigc", "/tops", "/", "deer_tummy_map_1","deer_tummy_map_2"];
 
   useEffect(() => {
     window.DigitalSignageTriggerCallback = (data) => {
@@ -25,6 +25,12 @@ export default function Navigate() {
             return;
           case "tops":
             router.push("/tops");
+            return;
+          case "deer_map_1":
+            router.push("/deer_tummy_map_1");
+            return;
+          case "deer_map_2":
+            router.push("/deer_tummy_map_2");
             return;
         }
       }
