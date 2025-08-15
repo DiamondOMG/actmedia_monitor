@@ -172,7 +172,7 @@ export default function SimpleUI() {
     <ThemeProvider theme={darkTheme}>
       <Box
         sx={{
-          backgroundImage: "url('top1.png')",
+          backgroundImage: "url('top_full.png')",
           backgroundPosition: "center",
           backgroundSize: "cover",
           width: "961px",
