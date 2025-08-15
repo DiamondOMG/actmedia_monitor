@@ -26,10 +26,10 @@ export default function Navigate() {
           case "tops":
             router.push("/tops");
             return;
-          case "deer_map_1":
+          case "deermap1":
             router.push("/deer_tummy_map_1");
             return;
-          case "deer_map_2":
+          case "deermap2":
             router.push("/deer_tummy_map_2");
             return;
         }
