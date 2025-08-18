@@ -316,20 +316,27 @@ export default function SimpleUI() {
             {counts.offline1Day}
           </Typography>
         </Box>
-        <Box>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            position: "absolute",
+            left: "30%",
+            bottom: "90%",
+            gap: "16px",
+          }}
+        >
           <Typography
             sx={{
               color: "#000000ff",
-              fontSize: "12px",
+              fontSize: "16px",
               fontWeight: "bold",
               textAlign: "center",
-              position: "absolute",
-              left: "30%",
-              bottom: "90%",
               fontFamily: "'Roboto', sans-serif",
             }}
           >
-            Chaengwattana Branch
+            Tops Chaengwattana
           </Typography>
           <Typography
             sx={{
@@ -337,9 +344,6 @@ export default function SimpleUI() {
               fontSize: "12px",
               fontWeight: "bold",
               textAlign: "center",
-              position: "absolute",
-              left: "45%",
-              bottom: "90%",
               fontFamily: "'Roboto', sans-serif",
             }}
           >
@@ -351,9 +355,6 @@ export default function SimpleUI() {
               fontSize: "12px",
               fontWeight: "bold",
               textAlign: "center",
-              position: "absolute",
-              left: "60%",
-              bottom: "90%",
               fontFamily: "'Roboto', sans-serif",
             }}
           >
