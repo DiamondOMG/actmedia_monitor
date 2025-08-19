@@ -208,13 +208,14 @@ export default function SimpleUI() {
   const [lastFetchTime, setLastFetchTime] = useState(null);
 
   useEffect(() => {
+    const uniqueKey = "deer"; // ตั้ง key ไม่ให้ชนกันในแต่ละหน้า
+
     const fetchData = async () => {
       try {
         const response = await axios.get("/api/deer_tummy_map");
         const apiData = response.data;
-        const fetchTime = new Date(); // ใช้เวลาที่ดึงข้อมูล
+        const fetchTime = new Date();
 
-        // Map status จาก API ไปยัง items และนับจำนวนสถานะ
         const updatedItems = items.map((item) => {
           const apiItem = apiData.find(
             (apiItem) => apiItem.id === item.macaddress
@@ -225,7 +226,6 @@ export default function SimpleUI() {
           };
         });
 
-        // นับจำนวนตามสถานะ
         const onlineCount = updatedItems.filter(
           (item) => item.status === "Box-Online"
         ).length;
@@ -236,36 +236,59 @@ export default function SimpleUI() {
           (item) => item.status === "Box-Offline (1+ day)"
         ).length;
 
+        // set state
         setItems(updatedItems);
         setCounts({
           online: onlineCount,
           offline1Hour: offline1HourCount,
           offline1Day: offline1DayCount,
         });
-        setLastFetchTime(fetchTime); // บันทึกเวลาที่ดึงข้อมูล
+        setLastFetchTime(fetchTime);
+
+        // เก็บทุกอย่างรวมกันใน key เดียว
+        localStorage.setItem(
+          uniqueKey,
+          JSON.stringify({
+            items: updatedItems,
+            counts: {
+              online: onlineCount,
+              offline1Hour: offline1HourCount,
+              offline1Day: offline1DayCount,
+            },
+            lastFetchTime: fetchTime.toISOString(),
+          })
+        );
       } catch (error) {
         console.error("Error fetching API data:", error);
-        setItems((prevItems) =>
-          prevItems.map((item) => ({
-            ...item,
-            status: "Failed to fetch",
-          }))
-        );
-        setCounts({
-          online: 0,
-          offline1Hour: 0,
-          offline1Day: 0,
-        });
-        setLastFetchTime(null);
+
+        // fallback: ดึงจาก localStorage
+        const cached = localStorage.getItem(uniqueKey);
+        if (cached) {
+          try {
+            const parsed = JSON.parse(cached);
+            setItems(parsed.items || []);
+            setCounts(
+              parsed.counts || { online: 0, offline1Hour: 0, offline1Day: 0 }
+            );
+            setLastFetchTime(
+              parsed.lastFetchTime ? new Date(parsed.lastFetchTime) : null
+            );
+          } catch (e) {
+            console.error("Error parsing cached data:", e);
+          }
+        } else {
+          // ถ้าไม่มี cache
+          setItems((prev) =>
+            prev.map((it) => ({ ...it, status: "Failed to fetch" }))
+          );
+          setCounts({ online: 0, offline1Hour: 0, offline1Day: 0 });
+          setLastFetchTime(null);
+        }
       }
     };
 
     fetchData();
-
-    // ตั้ง interval สำหรับ fetchData ทุก 10 นาที
     const fetchInterval = setInterval(fetchData, 10 * 60 * 1000);
-
-    // Cleanup interval เมื่อ component unmount
     return () => clearInterval(fetchInterval);
   }, []);
 
@@ -341,7 +364,9 @@ export default function SimpleUI() {
             fontFamily: "'Roboto', sans-serif",
           }}
         >
-          <Typography fontSize={17} fontWeight="bold">Play Box</Typography>
+          <Typography fontSize={17} fontWeight="bold">
+            Play Box
+          </Typography>
           <Box
             sx={{
               position: "relative", // ทำให้เป็นกรอบอ้างอิง
