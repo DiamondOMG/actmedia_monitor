@@ -246,70 +246,62 @@ export default function SimpleUI() {
           <Typography fontSize={17} fontWeight="bold">
             Play Box
           </Typography>
+
           <Box
-            sx={{
-              position: "relative", // ทำให้เป็นกรอบอ้างอิง
-              display: "flex", // ใช้ Flexbox
-              alignItems: "center", // จัดให้อยู่กึ่งกลางแนวตั้ง
-            }}
+            sx={{ display: "flex", alignItems: "center", position: "relative" }}
           >
             <Typography>{counts.online}</Typography>
             <Box
               sx={{
-                // ไม่ต้องใช้ position: "absolute" แล้ว
                 width: "20px",
                 height: "20px",
                 borderRadius: "50%",
                 backgroundColor: "green",
                 position: "absolute",
-                marginLeft: "25px", // เพิ่มระยะห่างจากเลข 5
+                marginLeft: "25px",
               }}
             />
           </Box>
-          <Typography fontSize={12}> ( Online )</Typography>
+          {/* ช่องว่างแทน ( Online ) */}
+          <Box sx={{ height: "20px" }} />
+
           <Box
-            sx={{
-              position: "relative", // ทำให้เป็นกรอบอ้างอิง
-              display: "flex", // ใช้ Flexbox
-              alignItems: "center", // จัดให้อยู่กึ่งกลางแนวตั้ง
-            }}
+            sx={{ display: "flex", alignItems: "center", position: "relative" }}
           >
             <Typography>{counts.offline1Hour}</Typography>
             <Box
               sx={{
-                // ไม่ต้องใช้ position: "absolute" แล้ว
                 width: "20px",
                 height: "20px",
                 borderRadius: "50%",
                 backgroundColor: "orange",
                 position: "absolute",
-                marginLeft: "25px", // เพิ่มระยะห่างจากเลข 5
+                marginLeft: "25px",
               }}
             />
           </Box>
-          <Typography fontSize={12}>( Offline 1 h + )</Typography>
+          {/* ช่องว่างแทน ( Offline 1 h + ) */}
+          <Box sx={{ height: "20px" }} />
+
           <Box
-            sx={{
-              position: "relative", // ทำให้เป็นกรอบอ้างอิง
-              display: "flex", // ใช้ Flexbox
-              alignItems: "center", // จัดให้อยู่กึ่งกลางแนวตั้ง
-            }}
+            sx={{ display: "flex", alignItems: "center", position: "relative" }}
           >
             <Typography>{counts.offline1Day}</Typography>
             <Box
               sx={{
-                // ไม่ต้องใช้ position: "absolute" แล้ว
                 width: "20px",
                 height: "20px",
                 borderRadius: "50%",
                 backgroundColor: "red",
                 position: "absolute",
-                marginLeft: "25px", // เพิ่มระยะห่างจากเลข 5
+                marginLeft: "25px",
               }}
             />
           </Box>
-          <Typography fontSize={12}>( Offline 1 d + )</Typography>
+          {/* ช่องว่างแทน ( Offline 1 d + ) */}
+          <Box sx={{ height: "20px" }} />
         </Box>
+
         <Box
           sx={{
             width: "320px",
