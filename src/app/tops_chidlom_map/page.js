@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Box, ThemeProvider, createTheme, Typography } from "@mui/material";
 import axios from "axios";
+import { keyframes } from "@emotion/react";
 
 const darkTheme = createTheme({
   palette: {
@@ -66,6 +67,18 @@ export default function SimpleUI() {
     offline1Day: 0,
   });
   const [lastFetchTime, setLastFetchTime] = useState(null);
+
+  const blinkRed = keyframes`
+  0% { box-shadow: 0 0 5px 2px rgba(255, 0, 0, 0.2); }
+  50% { box-shadow: 0 0 15px 6px rgba(255, 0, 0, 0.9); }
+  100% { box-shadow: 0 0 5px 2px rgba(255, 0, 0, 0.2); }
+`;
+
+  const blinkOrange = keyframes`
+  0% { box-shadow: 0 0 5px 2px rgba(255, 165, 0, 0.2); }
+  50% { box-shadow: 0 0 15px 6px rgba(255, 165, 0, 0.9); }
+  100% { box-shadow: 0 0 5px 2px rgba(255, 165, 0, 0.2); }
+`;
 
   useEffect(() => {
     const uniqueKey = "chidlom"; // ตั้ง key ไม่ให้ชนกันในแต่ละหน้า
@@ -191,12 +204,18 @@ export default function SimpleUI() {
                   : item.status === "Box-Offline (1+ hour)"
                   ? "orange"
                   : item.status === "Box-Offline (1+ day)"
-                  ? "red"
+                  ? "#ff3333"
                   : "blue",
               transform: "translate(-50%, 50%)", // ปรับ transform ให้จุดอยู่กึ่งกลาง
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              animation:
+                item.status === "Box-Offline (1+ day)"
+                  ? `${blinkRed} 1s infinite`
+                  : item.status === "Box-Offline (1+ hour)"
+                  ? `${blinkOrange} 1s infinite`
+                  : "none",
             }}
           >
             <Typography
