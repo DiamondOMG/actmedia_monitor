@@ -138,7 +138,7 @@ export default function SimpleUI() {
     },
     {
       name: "screen",
-      macaddress: "06BC20251465",
+      macaddress: "06BC202513CB",
       number: "18",
       position_x: "27.4%",
       position_y: "41.2%", // 100% - 68%
