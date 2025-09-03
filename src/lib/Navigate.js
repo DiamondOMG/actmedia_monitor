@@ -1,51 +1,58 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { getRoutes } from "@/lib/getRoutes";
 
 export default function Navigate() {
   const router = useRouter();
   const pathname = usePathname();
+  const [paths, setPaths] = useState([]);
 
-  // กำหนด path ทั้งหมดที่ต้องการให้วน
-  const paths = ["/deer_tummy", "/bigc", "/tops", "/", "deer_tummy_map_1","deer_tummy_map_2","tops_digital"];
+  // โหลด paths จาก localStorage หรือ Server Action
+  useEffect(() => {
+    async function loadPaths() {
+      const CACHE_KEY = "appRoutes";
+      const cachedPaths = localStorage.getItem(CACHE_KEY);
+      if (cachedPaths) {
+        setPaths(JSON.parse(cachedPaths));
+        return;
+      }
+
+      try {
+        const routes = await getRoutes();
+        setPaths(routes);
+        localStorage.setItem(CACHE_KEY, JSON.stringify(routes));
+      } catch (error) {
+        console.error("Error fetching routes:", error);
+      }
+    }
+    loadPaths();
+  }, []);
 
   useEffect(() => {
     window.DigitalSignageTriggerCallback = (data) => {
       if (!data) return;
-      const [cmd, dir] = data.split("_");
+      const [cmd, target] = data.split("_", 2); // Split แค่ 2 ส่วน
 
-      // เช็คกรณี cmd เป็น monitor
-      if (cmd === "monitor") {
-        switch (dir) {
-          case "deertummy":
-            router.push("/deer_tummy");
-            return;
-          case "bigc":
-            router.push("/bigc");
-            return;
-          case "tops":
-            router.push("/tops");
-            return;
-          case "deermap1":
-            router.push("/deer_tummy_map_1");
-            return;
-          case "deermap2":
-            router.push("/deer_tummy_map_2");
-            return;
-          case "topsdigital":
-            router.push("/tops_digital");
-            return;
+      // กรณี monitor
+      if (cmd === "monitor" && target) {
+        const targetPath = `/${target}`; // เพิ่ม / นำหน้า
+        if (paths.includes(targetPath)) {
+          router.push(targetPath); // ใช้ target โดยตรง
+        } else {
+          console.warn(`Invalid path: ${targetPath}`);
         }
+        return;
       }
 
-      // กรณี hand gesture (โค้ดเดิม)
-      if (cmd === "hand" && (dir === "right" || dir === "left")) {
+      // กรณี hand gesture
+      if (cmd === "hand" && (target === "right" || target === "left")) {
         const currentIdx = paths.indexOf(pathname);
         if (currentIdx === -1) return;
         let nextIdx = currentIdx;
-        if (dir === "right") {
+        if (target === "right") {
           nextIdx = (currentIdx + 1) % paths.length;
-        } else if (dir === "left") {
+        } else if (target === "left") {
           nextIdx = (currentIdx - 1 + paths.length) % paths.length;
         }
         router.push(paths[nextIdx]);
