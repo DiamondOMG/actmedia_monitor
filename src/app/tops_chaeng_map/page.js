@@ -5,6 +5,9 @@ import { Box, ThemeProvider, createTheme, Typography } from "@mui/material";
 import axios from "axios";
 import { keyframes } from "@emotion/react";
 
+const GAS_URL =
+  "https://script.google.com/macros/s/AKfycbzepwpESHIzuyG_5oKOFFsio9BmfN88Wa57EYHGy6RMEl3HYKZd8J8gO60Mu87NosdU5Q/exec?sheet=Tops%20Chaeng";
+
 const darkTheme = createTheme({
   palette: {
     mode: "dark",
@@ -16,135 +19,7 @@ const darkTheme = createTheme({
 });
 
 export default function SimpleUI() {
-  const [items, setItems] = useState([
-    {
-      name: "screen",
-      macaddress: "1C5974871FB1",
-      number: "1",
-      position_x: "8%",
-      position_y: "26%",
-    },
-    {
-      name: "screen",
-      macaddress: "06BC20251349",
-      number: "2",
-      position_x: "7.7%",
-      position_y: "42.5%",
-    },
-    {
-      name: "screen",
-      macaddress: "06BC20251426",
-      number: "3",
-      position_x: "7.7%",
-      position_y: "39%",
-    },
-    {
-      name: "screen",
-      macaddress: "06BC2025144F",
-      number: "4",
-      position_x: "7.7%",
-      position_y: "35.2%",
-    },
-    {
-      name: "screen",
-      macaddress: "06BC20251562",
-      number: "5",
-      position_x: "7.7%",
-      position_y: "31.5%",
-    },
-    {
-      name: "screen",
-      macaddress: "06BC2025157A",
-      number: "6",
-      position_x: "72%",
-      position_y: "45%",
-    },
-    {
-      name: "screen",
-      macaddress: "06BC202514DF",
-      number: "7",
-      position_x: "61.2%",
-      position_y: "45%",
-    },
-    {
-      name: "screen",
-      macaddress: "06BC202515AE",
-      number: "8",
-      position_x: "63.1%",
-      position_y: "45%",
-    },
-    {
-      name: "screen",
-      macaddress: "06BC2025148F",
-      number: "9",
-      position_x: "23.8%",
-      position_y: "44.3%",
-    },
-    {
-      name: "screen",
-      macaddress: "06BC202512AC",
-      number: "10",
-      position_x: "45%",
-      position_y: "75%",
-    },
-    {
-      name: "screen",
-      macaddress: "06BC20251338",
-      number: "11",
-      position_x: "64.5%",
-      position_y: "74%",
-    },
-    {
-      name: "screen",
-      macaddress: "06BC202512DF",
-      number: "12",
-      position_x: "58.4%",
-      position_y: "38%",
-    },
-    {
-      name: "screen",
-      macaddress: "06BC20251519",
-      number: "13",
-      position_x: "60.7%",
-      position_y: "38%",
-    },
-    {
-      name: "screen",
-      macaddress: "06BC2025121D",
-      number: "14",
-      position_x: "65%",
-      position_y: "38%",
-    },
-    {
-      name: "screen",
-      macaddress: "06BC20251573",
-      number: "15",
-      position_x: "67.5%",
-      position_y: "38%",
-    },
-    {
-      name: "screen",
-      macaddress: "06BC202515AA",
-      number: "16",
-      position_x: "74%",
-      position_y: "38%",
-    },
-    {
-      name: "screen",
-      macaddress: "06BC2025137F",
-      number: "17",
-      position_x: "79.5%",
-      position_y: "32%",
-    },
-    {
-      name: "screen",
-      macaddress: "06BC20251447",
-      number: "18",
-      position_x: "81.2%",
-      position_y: "32%",
-    },
-  ]);
-
+  const [items, setItems] = useState([]);
   const [counts, setCounts] = useState({
     online: 0,
     offline1Hour: 0,
@@ -153,27 +28,49 @@ export default function SimpleUI() {
   const [lastFetchTime, setLastFetchTime] = useState(null);
 
   const blinkRed = keyframes`
-        0% { box-shadow: 0 0 5px 2px rgba(255, 0, 0, 0.2); }
-        50% { box-shadow: 0 0 15px 6px rgba(255, 0, 0, 0.9); }
-        100% { box-shadow: 0 0 5px 2px rgba(255, 0, 0, 0.2); }
-      `;
+      0% { box-shadow: 0 0 5px 2px rgba(255, 0, 0, 0.2); }
+      50% { box-shadow: 0 0 15px 6px rgba(255, 0, 0, 0.9); }
+      100% { box-shadow: 0 0 5px 2px rgba(255, 0, 0, 0.2); }
+    `;
 
   const blinkOrange = keyframes`
-        0% { box-shadow: 0 0 5px 2px rgba(255, 165, 0, 0.2); }
-        50% { box-shadow: 0 0 15px 6px rgba(255, 165, 0, 0.9); }
-        100% { box-shadow: 0 0 5px 2px rgba(255, 165, 0, 0.2); }
-      `;
+      0% { box-shadow: 0 0 5px 2px rgba(255, 165, 0, 0.2); }
+      50% { box-shadow: 0 0 15px 6px rgba(255, 165, 0, 0.9); }
+      100% { box-shadow: 0 0 5px 2px rgba(255, 165, 0, 0.2); }
+    `;
 
   useEffect(() => {
-    const uniqueKey = "chaeng"; // ตั้ง key ไม่ให้ชนกันในแต่ละหน้า
+    const uniqueKey = "chaeng";
 
     const fetchData = async () => {
       try {
+        // 1) Fetch layout from GAS first
+        const { data: layout } = await axios.get(GAS_URL, {
+          timeout: 30000,
+          withCredentials: false,
+        });
+        const layoutItems = (Array.isArray(layout) ? layout : []).map((it) => ({
+          name: it.name ?? "screen",
+          macaddress: it.macaddress ?? "",
+          number: String(it.number ?? ""),
+          position_x:
+            typeof it.position_x === "number"
+              ? `${it.position_x * 100}%`
+              : "0%",
+          position_y:
+            typeof it.position_y === "number"
+              ? `${it.position_y * 100}%`
+              : "0%",
+          status: "No Macaddress",
+        }));
+        setItems(layoutItems);
+
+        // 2) Fetch status and map to items
         const response = await axios.get("/api/tops_chaeng_map");
         const apiData = response.data;
         const fetchTime = new Date();
 
-        const updatedItems = items.map((item) => {
+        const updatedItems = layoutItems.map((item) => {
           const apiItem = apiData.find(
             (apiItem) => apiItem.id === item.macaddress
           );
@@ -202,7 +99,7 @@ export default function SimpleUI() {
         });
         setLastFetchTime(fetchTime);
 
-        // เก็บทุกอย่างรวมกันใน key เดียว
+        // Cache the data
         localStorage.setItem(
           uniqueKey,
           JSON.stringify({
@@ -218,7 +115,7 @@ export default function SimpleUI() {
       } catch (error) {
         console.error("Error fetching API data:", error);
 
-        // fallback: ดึงจาก localStorage
+        // fallback: retrieve from localStorage
         const cached = localStorage.getItem(uniqueKey);
         if (cached) {
           try {
@@ -234,7 +131,7 @@ export default function SimpleUI() {
             console.error("Error parsing cached data:", e);
           }
         } else {
-          // ถ้าไม่มี cache
+          // If no cache
           setItems((prev) =>
             prev.map((it) => ({ ...it, status: "Failed to fetch" }))
           );
@@ -249,7 +146,7 @@ export default function SimpleUI() {
     return () => clearInterval(fetchInterval);
   }, []);
 
-  // แปลงเวลาเป็นรูปแบบ 12 ชั่วโมง
+  // Format time to 12-hour format
   const formatTime = (date) => {
     if (!date) return "N/A";
     return date.toLocaleTimeString("en-US", {
@@ -278,7 +175,7 @@ export default function SimpleUI() {
             sx={{
               position: "absolute",
               left: item.position_x,
-              top: item.position_y,
+              bottom: item.position_y,
               width: "18px",
               height: "18px",
               borderRadius: "50%",
@@ -290,7 +187,7 @@ export default function SimpleUI() {
                   : item.status === "Box-Offline (1+ day)"
                   ? "red"
                   : "blue",
-              transform: "translate(-50%, -50%)",
+              transform: "translate(-50%, 50%)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -314,49 +211,100 @@ export default function SimpleUI() {
             </Typography>
           </Box>
         ))}
-        <Box>
-          <Typography
-            sx={{
-              color: "#000000ff",
-              fontSize: "12px",
-              fontWeight: "bold",
-              textAlign: "center",
-              position: "absolute",
-              left: "4%",
-              bottom: "14.7%",
-              fontFamily: "'Roboto', sans-serif",
-            }}
-          >
-            {counts.online}
+        <Box
+          sx={{
+            width: "100px",
+            height: "150px",
+            fontSize: "12px",
+            fontWeight: "bold",
+            textAlign: "center",
+            position: "absolute",
+            left: "1%",
+            bottom: "1%",
+            fontFamily: "'Roboto', sans-serif",
+          }}
+        >
+          <Typography fontSize={17} fontWeight="bold">
+            Play Box
           </Typography>
-          <Typography
-            sx={{
-              color: "#000000ff",
-              fontSize: "12px",
-              fontWeight: "bold",
-              textAlign: "center",
-              position: "absolute",
-              left: "4%",
-              bottom: "9.5%",
-              fontFamily: "'Roboto', sans-serif",
-            }}
+          <Box
+            sx={{ display: "flex", alignItems: "center", position: "relative" }}
           >
-            {counts.offline1Hour}
-          </Typography>
-          <Typography
-            sx={{
-              color: "#000000ff",
-              fontSize: "12px",
-              fontWeight: "bold",
-              textAlign: "center",
-              position: "absolute",
-              left: "4%",
-              bottom: "4.5%",
-              fontFamily: "'Roboto', sans-serif",
-            }}
+            <Typography>{counts.online}</Typography>
+            <Box
+              sx={{
+                width: "20px",
+                height: "20px",
+                borderRadius: "50%",
+                backgroundColor: "green",
+                position: "absolute",
+                marginLeft: "25px",
+              }}
+            />
+          </Box>
+          <Box sx={{ height: "20px" }} />
+          <Box
+            sx={{ display: "flex", alignItems: "center", position: "relative" }}
           >
-            {counts.offline1Day}
-          </Typography>
+            <Typography>{counts.offline1Hour}</Typography>
+            <Box
+              sx={{
+                width: "20px",
+                height: "20px",
+                borderRadius: "50%",
+                backgroundColor: "orange",
+                position: "absolute",
+                marginLeft: "25px",
+              }}
+            />
+          </Box>
+          <Box sx={{ height: "20px" }} />
+          <Box
+            sx={{ display: "flex", alignItems: "center", position: "relative" }}
+          >
+            <Typography>{counts.offline1Day}</Typography>
+            <Box
+              sx={{
+                width: "20px",
+                height: "20px",
+                borderRadius: "50%",
+                backgroundColor: "red",
+                position: "absolute",
+                marginLeft: "25px",
+              }}
+            />
+          </Box>
+          <Box sx={{ height: "20px" }} />
+        </Box>
+        <Box
+          sx={{
+            width: "320px",
+            height: "100px",
+            position: "absolute",
+            left: "12%",
+            bottom: "1%",
+            display: "grid",
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gridTemplateRows: "repeat(7, 1fr)",
+            gap: "4px",
+            alignItems: "center",
+            justifyItems: "start",
+            fontSize: "0.7rem",
+          }}
+        >
+          {items.map((item, index) => (
+            <Box
+              key={index}
+              sx={{
+                gridColumn: `${Math.floor(index / 5) + 1}`,
+                gridRow: `${(index % 5) + 1}`,
+              }}
+            >
+              <Typography sx={{ fontSize: "inherit" }}>
+                {item.number} = {item.macaddress.slice(-4)}
+              </Typography>
+            </Box>
+          ))}
         </Box>
         <Box
           sx={{
@@ -378,7 +326,7 @@ export default function SimpleUI() {
               fontFamily: "'Roboto', sans-serif",
             }}
           >
-            Tops Chaengwattana
+            Deer Tummy
           </Typography>
           <Typography
             sx={{
