@@ -32,7 +32,9 @@ export default function Navigate() {
   useEffect(() => {
     window.DigitalSignageTriggerCallback = (data) => {
       if (!data) return;
-      const [cmd, target] = data.split("_", 2); // Split แค่ 2 ส่วน
+      const parts = data.split("_"); // แยกโดยไม่จำกัดจำนวน
+      const cmd = parts[0]; // monitor
+      const target = parts.slice(1).join("_"); // รวมส่วนที่เหลือด้วย _
 
       // กรณี monitor
       if (cmd === "monitor" && target) {
