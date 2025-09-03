@@ -5,62 +5,16 @@ import { Box, ThemeProvider, createTheme, Typography } from "@mui/material";
 import axios from "axios";
 import { keyframes } from "@emotion/react";
 
+const GAS_URL =
+  "https://script.google.com/macros/s/AKfycbzepwpESHIzuyG_5oKOFFsio9BmfN88Wa57EYHGy6RMEl3HYKZd8J8gO60Mu87NosdU5Q/exec";
+
 const darkTheme = createTheme({
-  palette: {
-    mode: "dark",
-    background: { default: "#000000" },
-  },
-  typography: {
-    fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
-  },
+  palette: { mode: "dark", background: { default: "#000000" } },
+  typography: { fontFamily: "'Roboto','Helvetica','Arial',sans-serif" },
 });
 
 export default function SimpleUI() {
-  const [items, setItems] = useState([
-    {
-      name: "screen",
-      macaddress: "06BC202514EE",
-      number: "1",
-      position_x: "62%",
-      position_y: "46%", // 100% - 62%
-    },
-    {
-      name: "screen",
-      macaddress: "06BC2025152F",
-      number: "2",
-      position_x: "64.5%",
-      position_y: "23%", // 100% - 56.2%
-    },
-    {
-      name: "screen",
-      macaddress: "2002AF3C13C4",
-      number: "3",
-      position_x: "76%",
-      position_y: "23%", // 100% - 50%
-    },
-    {
-      name: "screen",
-      macaddress: "06BC202514D4",
-      number: "4",
-      position_x: "87%",
-      position_y: "46%", // 100% - 66%
-    },
-    {
-      name: "screen",
-      macaddress: "6021C0CB28F8",
-      number: "5",
-      position_x: "87%",
-      position_y: "71%", // 100% - 37%
-    },
-    {
-      name: "screen",
-      macaddress: "06BC2025120B",
-      number: "6",
-      position_x: "76%",
-      position_y: "71%", // 100% - 35.5%
-    },
-  ]);
-
+  const [items, setItems] = useState([]); // จะถูกแทนด้วยข้อมูลจาก GAS เท่านั้น
   const [counts, setCounts] = useState({
     online: 0,
     offline1Hour: 0,
@@ -69,72 +23,82 @@ export default function SimpleUI() {
   const [lastFetchTime, setLastFetchTime] = useState(null);
 
   const blinkRed = keyframes`
-    0% { box-shadow: 0 0 5px 2px rgba(255, 0, 0, 0.2); }
-    50% { box-shadow: 0 0 15px 6px rgba(255, 0, 0, 0.9); }
-    100% { box-shadow: 0 0 5px 2px rgba(255, 0, 0, 0.2); }
+    0% { box-shadow: 0 0 5px 2px rgba(255,0,0,.2); }
+    50% { box-shadow: 0 0 15px 6px rgba(255,0,0,.9); }
+    100% { box-shadow: 0 0 5px 2px rgba(255,0,0,.2); }
   `;
-
   const blinkOrange = keyframes`
-    0% { box-shadow: 0 0 5px 2px rgba(255, 165, 0, 0.2); }
-    50% { box-shadow: 0 0 15px 6px rgba(255, 165, 0, 0.9); }
-    100% { box-shadow: 0 0 5px 2px rgba(255, 165, 0, 0.2); }
+    0% { box-shadow: 0 0 5px 2px rgba(255,165,0,.2); }
+    50% { box-shadow: 0 0 15px 6px rgba(255,165,0,.9); }
+    100% { box-shadow: 0 0 5px 2px rgba(255,165,0,.2); }
   `;
 
   useEffect(() => {
-    const uniqueKey = "ladpao"; // ตั้ง key ไม่ให้ชนกันในแต่ละหน้า
+    const uniqueKey = "ladpao";
 
-    const fetchData = async () => {
+    const fetchLayoutFirstThenStatus = async () => {
       try {
-        const response = await axios.get("/api/tops_ladpao_map");
-        const apiData = response.data;
-        const fetchTime = new Date();
+        // 1) ดึงแผนผังจาก GAS (อันนี้ต้องเสร็จก่อน)
+        const { data: layout } = await axios.get(GAS_URL, {
+          timeout: 30000,
+          withCredentials: false,
+        });
+        const layoutItems = (Array.isArray(layout) ? layout : []).map((it) => ({
+          name: it.name ?? "screen",
+          macaddress: it.macaddress ?? "",
+          number: String(it.number ?? ""),
+          // GAS ให้ 0..1 -> แปลงเป็นเปอร์เซ็นต์ string สำหรับ CSS
+          position_x:
+            typeof it.position_x === "number"
+              ? `${it.position_x * 100}%`
+              : "0%",
+          position_y:
+            typeof it.position_y === "number"
+              ? `${it.position_y * 100}%`
+              : "0%",
+          status: "Loading...",
+        }));
+        setItems(layoutItems); // ตั้งตำแหน่งก่อน
 
-        const updatedItems = items.map((item) => {
-          const apiItem = apiData.find(
-            (apiItem) => apiItem.id === item.macaddress
-          );
-          return {
-            ...item,
-            status: apiItem ? apiItem.status : "No Macaddress",
-          };
+        // 2) แล้วค่อยดึงสถานะมาแมพทีหลัง
+        const { data: statusList } = await axios.get("/api/tops_ladpao_map", {
+          timeout: 15000,
+        });
+        const updatedItems = layoutItems.map((item) => {
+          const found = Array.isArray(statusList)
+            ? statusList.find((x) => x.id === item.macaddress)
+            : null;
+          return { ...item, status: found ? found.status : "No Macaddress" };
         });
 
-        const onlineCount = updatedItems.filter(
-          (item) => item.status === "Box-Online"
+        // นับสถานะ
+        const online = updatedItems.filter(
+          (x) => x.status === "Box-Online"
         ).length;
-        const offline1HourCount = updatedItems.filter(
-          (item) => item.status === "Box-Offline (1+ hour)"
+        const off1h = updatedItems.filter(
+          (x) => x.status === "Box-Offline (1+ hour)"
         ).length;
-        const offline1DayCount = updatedItems.filter(
-          (item) => item.status === "Box-Offline (1+ day)"
+        const off1d = updatedItems.filter(
+          (x) => x.status === "Box-Offline (1+ day)"
         ).length;
 
-        // set state
         setItems(updatedItems);
-        setCounts({
-          online: onlineCount,
-          offline1Hour: offline1HourCount,
-          offline1Day: offline1DayCount,
-        });
-        setLastFetchTime(fetchTime);
+        setCounts({ online, offline1Hour: off1h, offline1Day: off1d });
+        const now = new Date();
+        setLastFetchTime(now);
 
-        // เก็บทุกอย่างรวมกันใน key เดียว
+        // cache ทั้งก้อน
         localStorage.setItem(
           uniqueKey,
           JSON.stringify({
             items: updatedItems,
-            counts: {
-              online: onlineCount,
-              offline1Hour: offline1HourCount,
-              offline1Day: offline1DayCount,
-            },
-            lastFetchTime: fetchTime.toISOString(),
+            counts: { online, offline1Hour: off1h, offline1Day: off1d },
+            lastFetchTime: now.toISOString(),
           })
         );
-      } catch (error) {
-        console.error("Error fetching API data:", error);
-
-        // fallback: ดึงจาก localStorage
+      } catch (err) {
+        console.error("Fetch error:", err);
+        // fallback จาก cache
         const cached = localStorage.getItem(uniqueKey);
         if (cached) {
           try {
@@ -147,10 +111,10 @@ export default function SimpleUI() {
               parsed.lastFetchTime ? new Date(parsed.lastFetchTime) : null
             );
           } catch (e) {
-            console.error("Error parsing cached data:", e);
+            console.error("Cache parse error:", e);
           }
         } else {
-          // ถ้าไม่มี cache
+          // ไม่มี cache: แสดง placeholder
           setItems((prev) =>
             prev.map((it) => ({ ...it, status: "Failed to fetch" }))
           );
@@ -160,20 +124,20 @@ export default function SimpleUI() {
       }
     };
 
-    fetchData();
-    const fetchInterval = setInterval(fetchData, 10 * 60 * 1000);
-    return () => clearInterval(fetchInterval);
+    // เรียกทันที และตั้งให้รีเฟรชทุก 10 นาที (เรียกแบบลำดับเดิม)
+    fetchLayoutFirstThenStatus();
+    const id = setInterval(fetchLayoutFirstThenStatus, 10 * 60 * 1000);
+    return () => clearInterval(id);
   }, []);
 
-  // แปลงเวลาเป็นรูปแบบ 12 ชั่วโมง
-  const formatTime = (date) => {
-    if (!date) return "N/A";
-    return date.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
-  };
+  const formatTime = (date) =>
+    date
+      ? date.toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        })
+      : "N/A";
 
   return (
     <ThemeProvider theme={darkTheme}>
@@ -193,8 +157,8 @@ export default function SimpleUI() {
             key={index}
             sx={{
               position: "absolute",
-              left: item.position_x,
-              bottom: item.position_y, // เปลี่ยนจาก top เป็น bottom
+              left: item.position_x, // e.g. "62%"
+              bottom: item.position_y, // e.g. "46%"
               width: "18px",
               height: "18px",
               borderRadius: "50%",
@@ -206,7 +170,7 @@ export default function SimpleUI() {
                   : item.status === "Box-Offline (1+ day)"
                   ? "red"
                   : "blue",
-              transform: "translate(-50%, 50%)", // ปรับ transform ให้จุดอยู่กึ่งกลาง
+              transform: "translate(-50%, 50%)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -230,11 +194,13 @@ export default function SimpleUI() {
             </Typography>
           </Box>
         ))}
+
+        {/* Legend + counters */}
         <Box
           sx={{
-            width: "100px",
-            height: "150px",
-            fontSize: "12px",
+            width: 100,
+            height: 150,
+            fontSize: 12,
             fontWeight: "bold",
             textAlign: "center",
             position: "absolute",
@@ -246,15 +212,14 @@ export default function SimpleUI() {
           <Typography fontSize={17} fontWeight="bold">
             Play Box
           </Typography>
-
           <Box
             sx={{ display: "flex", alignItems: "center", position: "relative" }}
           >
             <Typography>{counts.online}</Typography>
             <Box
               sx={{
-                width: "20px",
-                height: "20px",
+                width: 20,
+                height: 20,
                 borderRadius: "50%",
                 backgroundColor: "green",
                 position: "absolute",
@@ -262,17 +227,15 @@ export default function SimpleUI() {
               }}
             />
           </Box>
-          {/* ช่องว่างแทน ( Online ) */}
-          <Box sx={{ height: "20px" }} />
-
+          <Box sx={{ height: 20 }} />
           <Box
             sx={{ display: "flex", alignItems: "center", position: "relative" }}
           >
             <Typography>{counts.offline1Hour}</Typography>
             <Box
               sx={{
-                width: "20px",
-                height: "20px",
+                width: 20,
+                height: 20,
                 borderRadius: "50%",
                 backgroundColor: "orange",
                 position: "absolute",
@@ -280,17 +243,15 @@ export default function SimpleUI() {
               }}
             />
           </Box>
-          {/* ช่องว่างแทน ( Offline 1 h + ) */}
-          <Box sx={{ height: "20px" }} />
-
+          <Box sx={{ height: 20 }} />
           <Box
             sx={{ display: "flex", alignItems: "center", position: "relative" }}
           >
             <Typography>{counts.offline1Day}</Typography>
             <Box
               sx={{
-                width: "20px",
-                height: "20px",
+                width: 20,
+                height: 20,
                 borderRadius: "50%",
                 backgroundColor: "red",
                 position: "absolute",
@@ -298,60 +259,57 @@ export default function SimpleUI() {
               }}
             />
           </Box>
-          {/* ช่องว่างแทน ( Offline 1 d + ) */}
-          <Box sx={{ height: "20px" }} />
+          <Box sx={{ height: 20 }} />
         </Box>
 
+        {/* Tail list */}
         <Box
           sx={{
-            width: "320px",
-            height: "150px",
+            width: 320,
+            height: 150,
             position: "absolute",
             left: "12%",
             bottom: "1%",
             display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)", // 4 columns
-            gridTemplateRows: "repeat(7, 1fr)", // 7 rows
-            gap: "4px", // Small gap between items
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gridTemplateRows: "repeat(7, 1fr)",
+            gap: "4px",
             alignItems: "center",
             justifyItems: "start",
-            fontSize: "0.7rem", // Reduced font size
+            fontSize: ".7rem",
           }}
         >
           {items.map((item, index) => (
             <Box
               key={index}
               sx={{
-                gridColumn: `${Math.floor(index / 7) + 1}`, // Move to next column every 7 items
-                gridRow: `${(index % 7) + 1}`, // Place in row 1-7
+                gridColumn: `${Math.floor(index / 7) + 1}`,
+                gridRow: `${(index % 7) + 1}`,
               }}
             >
               <Typography sx={{ fontSize: "inherit" }}>
-                {item.number} = {item.macaddress.slice(-4)}
+                {item.number}. {item.macaddress.slice(-4)}
               </Typography>
             </Box>
           ))}
         </Box>
+
+        {/* Title + last fetch */}
         <Box
           sx={{
             display: "flex",
-            // เปลี่ยนทิศทางการจัดเรียงเป็นแนวตั้ง
             flexDirection: "column",
-            // จัดให้อยู่ตรงกลางตามแนวตั้งและแนวนอน
             alignItems: "flex-start",
             position: "absolute",
             left: "1%",
             bottom: "80%",
-            // ลบ gap ออก เพราะแต่ละอันจะขึ้นบรรทัดใหม่แล้ว
-            // gap: "16px",
           }}
         >
           <Typography
             sx={{
               color: "#000000ff",
-              fontSize: "16px",
+              fontSize: 16,
               fontWeight: "bold",
-              textAlign: "center",
               fontFamily: "'Roboto', sans-serif",
             }}
           >
@@ -360,9 +318,8 @@ export default function SimpleUI() {
           <Typography
             sx={{
               color: "#000000ff",
-              fontSize: "12px",
+              fontSize: 12,
               fontWeight: "bold",
-              textAlign: "center",
               fontFamily: "'Roboto', sans-serif",
             }}
           >
@@ -371,9 +328,8 @@ export default function SimpleUI() {
           <Typography
             sx={{
               color: "#000000ff",
-              fontSize: "12px",
+              fontSize: 12,
               fontWeight: "bold",
-              textAlign: "center",
               fontFamily: "'Roboto', sans-serif",
             }}
           >

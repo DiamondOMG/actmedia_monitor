@@ -263,7 +263,7 @@ export default function SimpleUI() {
     <ThemeProvider theme={darkTheme}>
       <Box
         sx={{
-          backgroundImage: "url('Chaengwattana4.png')",
+          backgroundImage: "url('Chaengwattana6.png')",
           backgroundPosition: "center",
           backgroundSize: "contain",
           backgroundRepeat: "no-repeat",

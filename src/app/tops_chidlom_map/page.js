@@ -1,9 +1,11 @@
 "use client";
-
 import React, { useState, useEffect } from "react";
 import { Box, ThemeProvider, createTheme, Typography } from "@mui/material";
 import axios from "axios";
 import { keyframes } from "@emotion/react";
+
+const GAS_URL =
+  "https://script.google.com/macros/s/AKfycbzepwpESHIzuyG_5oKOFFsio9BmfN88Wa57EYHGy6RMEl3HYKZd8J8gO60Mu87NosdU5Q/exec?sheet=Tops%20Chidlom";
 
 const darkTheme = createTheme({
   palette: {
@@ -16,51 +18,7 @@ const darkTheme = createTheme({
 });
 
 export default function SimpleUI() {
-  const [items, setItems] = useState([
-    {
-      name: "screen",
-      macaddress: "06BC2025145F",
-      number: "1",
-      position_x: "41.9%",
-      position_y: "72.5%", // 100% - 62%
-    },
-    {
-      name: "screen",
-      macaddress: "06BC202513BA",
-      number: "2",
-      position_x: "52.4%",
-      position_y: "65%", // 100% - 56.2%
-    },
-    {
-      name: "screen",
-      macaddress: "06BC20251312",
-      number: "3",
-      position_x: "52.4%",
-      position_y: "48%", // 100% - 50%
-    },
-    {
-      name: "screen",
-      macaddress: "06BC2025145A",
-      number: "4",
-      position_x: "63.7%",
-      position_y: "45%", // 100% - 66%
-    },
-    {
-      name: "screen",
-      macaddress: "06BC202514D4",
-      number: "5",
-      position_x: "63.8%",
-      position_y: "61.9%", // 100% - 37%
-    },
-    {
-      name: "screen",
-      macaddress: "788A869F72CB",
-      number: "6",
-      position_x: "74.9%",
-      position_y: "61.9%", // 100% - 35.5%
-    },
-  ]);
-
+  const [items, setItems] = useState([]);
   const [counts, setCounts] = useState({
     online: 0,
     offline1Hour: 0,
@@ -69,72 +27,81 @@ export default function SimpleUI() {
   const [lastFetchTime, setLastFetchTime] = useState(null);
 
   const blinkRed = keyframes`
-  0% { box-shadow: 0 0 5px 2px rgba(255, 0, 0, 0.2); }
-  50% { box-shadow: 0 0 15px 6px rgba(255, 0, 0, 0.9); }
-  100% { box-shadow: 0 0 5px 2px rgba(255, 0, 0, 0.2); }
-`;
+    0% { box-shadow: 0 0 5px 2px rgba(255, 0, 0, 0.2); }
+    50% { box-shadow: 0 0 15px 6px rgba(255, 0, 0, 0.9); }
+    100% { box-shadow: 0 0 5px 2px rgba(255, 0, 0, 0.2); }
+  `;
 
   const blinkOrange = keyframes`
-  0% { box-shadow: 0 0 5px 2px rgba(255, 165, 0, 0.2); }
-  50% { box-shadow: 0 0 15px 6px rgba(255, 165, 0, 0.9); }
-  100% { box-shadow: 0 0 5px 2px rgba(255, 165, 0, 0.2); }
-`;
+    0% { box-shadow: 0 0 5px 2px rgba(255, 165, 0, 0.2); }
+    50% { box-shadow: 0 0 15px 6px rgba(255, 165, 0, 0.9); }
+    100% { box-shadow: 0 0 5px 2px rgba(255, 165, 0, 0.2); }
+  `;
 
   useEffect(() => {
-    const uniqueKey = "chidlom"; // ตั้ง key ไม่ให้ชนกันในแต่ละหน้า
-
-    const fetchData = async () => {
+    const uniqueKey = "chidlom";
+    const fetchLayoutFirstThenStatus = async () => {
       try {
-        const response = await axios.get("/api/tops_chidlom_map");
-        const apiData = response.data;
-        const fetchTime = new Date();
+        // 1) Fetch layout from GAS first
+        const { data: layout } = await axios.get(GAS_URL, {
+          timeout: 30000,
+          withCredentials: false,
+        });
+        const layoutItems = (Array.isArray(layout) ? layout : []).map((it) => ({
+          name: it.name ?? "screen",
+          macaddress: it.macaddress ?? "",
+          number: String(it.number ?? ""),
+          position_x:
+            typeof it.position_x === "number"
+              ? `${it.position_x * 100}%`
+              : "0%",
+          position_y:
+            typeof it.position_y === "number"
+              ? `${it.position_y * 100}%`
+              : "0%",
+          status: "Loading...",
+        }));
+        setItems(layoutItems);
 
-        const updatedItems = items.map((item) => {
-          const apiItem = apiData.find(
-            (apiItem) => apiItem.id === item.macaddress
-          );
-          return {
-            ...item,
-            status: apiItem ? apiItem.status : "No Macaddress",
-          };
+        // 2) Fetch status and map to items
+        const { data: statusList } = await axios.get("/api/tops_chidlom_map", {
+          timeout: 15000,
+        });
+        const updatedItems = layoutItems.map((item) => {
+          const found = Array.isArray(statusList)
+            ? statusList.find((x) => x.id === item.macaddress)
+            : null;
+          return { ...item, status: found ? found.status : "No Macaddress" };
         });
 
-        const onlineCount = updatedItems.filter(
-          (item) => item.status === "Box-Online"
+        // Count statuses
+        const online = updatedItems.filter(
+          (x) => x.status === "Box-Online"
         ).length;
-        const offline1HourCount = updatedItems.filter(
-          (item) => item.status === "Box-Offline (1+ hour)"
+        const off1h = updatedItems.filter(
+          (x) => x.status === "Box-Offline (1+ hour)"
         ).length;
-        const offline1DayCount = updatedItems.filter(
-          (item) => item.status === "Box-Offline (1+ day)"
+        const off1d = updatedItems.filter(
+          (x) => x.status === "Box-Offline (1+ day)"
         ).length;
 
-        // set state
         setItems(updatedItems);
-        setCounts({
-          online: onlineCount,
-          offline1Hour: offline1HourCount,
-          offline1Day: offline1DayCount,
-        });
-        setLastFetchTime(fetchTime);
+        setCounts({ online, offline1Hour: off1h, offline1Day: off1d });
+        const now = new Date();
+        setLastFetchTime(now);
 
-        // เก็บทุกอย่างรวมกันใน key เดียว
+        // Cache the data
         localStorage.setItem(
           uniqueKey,
           JSON.stringify({
             items: updatedItems,
-            counts: {
-              online: onlineCount,
-              offline1Hour: offline1HourCount,
-              offline1Day: offline1DayCount,
-            },
-            lastFetchTime: fetchTime.toISOString(),
+            counts: { online, offline1Hour: off1h, offline1Day: off1d },
+            lastFetchTime: now.toISOString(),
           })
         );
-      } catch (error) {
-        console.error("Error fetching API data:", error);
-
-        // fallback: ดึงจาก localStorage
+      } catch (err) {
+        console.error("Fetch error:", err);
+        // Fallback to cache
         const cached = localStorage.getItem(uniqueKey);
         if (cached) {
           try {
@@ -147,10 +114,9 @@ export default function SimpleUI() {
               parsed.lastFetchTime ? new Date(parsed.lastFetchTime) : null
             );
           } catch (e) {
-            console.error("Error parsing cached data:", e);
+            console.error("Cache parse error:", e);
           }
         } else {
-          // ถ้าไม่มี cache
           setItems((prev) =>
             prev.map((it) => ({ ...it, status: "Failed to fetch" }))
           );
@@ -160,20 +126,19 @@ export default function SimpleUI() {
       }
     };
 
-    fetchData();
-    const fetchInterval = setInterval(fetchData, 10 * 60 * 1000);
-    return () => clearInterval(fetchInterval);
+    fetchLayoutFirstThenStatus();
+    const id = setInterval(fetchLayoutFirstThenStatus, 10 * 60 * 1000);
+    return () => clearInterval(id);
   }, []);
 
-  // แปลงเวลาเป็นรูปแบบ 12 ชั่วโมง
-  const formatTime = (date) => {
-    if (!date) return "N/A";
-    return date.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
-  };
+  const formatTime = (date) =>
+    date
+      ? date.toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        })
+      : "N/A";
 
   return (
     <ThemeProvider theme={darkTheme}>
@@ -194,7 +159,7 @@ export default function SimpleUI() {
             sx={{
               position: "absolute",
               left: item.position_x,
-              bottom: item.position_y, // เปลี่ยนจาก top เป็น bottom
+              bottom: item.position_y,
               width: "18px",
               height: "18px",
               borderRadius: "50%",
@@ -206,7 +171,7 @@ export default function SimpleUI() {
                   : item.status === "Box-Offline (1+ day)"
                   ? "#ff3333"
                   : "blue",
-              transform: "translate(-50%, 50%)", // ปรับ transform ให้จุดอยู่กึ่งกลาง
+              transform: "translate(-50%, 50%)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -230,6 +195,7 @@ export default function SimpleUI() {
             </Typography>
           </Box>
         ))}
+        {/* Legend + counters */}
         <Box
           sx={{
             width: "100px",
@@ -246,7 +212,6 @@ export default function SimpleUI() {
           <Typography fontSize={17} fontWeight="bold">
             Play Box
           </Typography>
-
           <Box
             sx={{ display: "flex", alignItems: "center", position: "relative" }}
           >
@@ -262,9 +227,7 @@ export default function SimpleUI() {
               }}
             />
           </Box>
-          {/* ช่องว่างแทน ( Online ) */}
           <Box sx={{ height: "20px" }} />
-
           <Box
             sx={{ display: "flex", alignItems: "center", position: "relative" }}
           >
@@ -280,9 +243,7 @@ export default function SimpleUI() {
               }}
             />
           </Box>
-          {/* ช่องว่างแทน ( Offline 1 h + ) */}
           <Box sx={{ height: "20px" }} />
-
           <Box
             sx={{ display: "flex", alignItems: "center", position: "relative" }}
           >
@@ -298,9 +259,9 @@ export default function SimpleUI() {
               }}
             />
           </Box>
-          {/* ช่องว่างแทน ( Offline 1 d + ) */}
           <Box sx={{ height: "20px" }} />
         </Box>
+        {/* Tail list */}
         <Box
           sx={{
             width: "320px",
@@ -309,40 +270,37 @@ export default function SimpleUI() {
             left: "12%",
             bottom: "1%",
             display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)", // 4 columns
-            gridTemplateRows: "repeat(7, 1fr)", // 7 rows
-            gap: "4px", // Small gap between items
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gridTemplateRows: "repeat(7, 1fr)",
+            gap: "4px",
             alignItems: "center",
             justifyItems: "start",
-            fontSize: "0.7rem", // Reduced font size
+            fontSize: "0.7rem",
           }}
         >
           {items.map((item, index) => (
             <Box
               key={index}
               sx={{
-                gridColumn: `${Math.floor(index / 7) + 1}`, // Move to next column every 7 items
-                gridRow: `${(index % 7) + 1}`, // Place in row 1-7
+                gridColumn: `${Math.floor(index / 7) + 1}`,
+                gridRow: `${(index % 7) + 1}`,
               }}
             >
               <Typography sx={{ fontSize: "inherit" }}>
-                {item.number} = {item.macaddress.slice(-4)}
+                {item.number}. {item.macaddress.slice(-4)}
               </Typography>
             </Box>
           ))}
         </Box>
+        {/* Title + last fetch */}
         <Box
           sx={{
             display: "flex",
-            // เปลี่ยนทิศทางการจัดเรียงเป็นแนวตั้ง
             flexDirection: "column",
-            // จัดให้อยู่ตรงกลางตามแนวตั้งและแนวนอน
             alignItems: "flex-start",
             position: "absolute",
             left: "1%",
             bottom: "80%",
-            // ลบ gap ออก เพราะแต่ละอันจะขึ้นบรรทัดใหม่แล้ว
-            // gap: "16px",
           }}
         >
           <Typography
@@ -350,7 +308,6 @@ export default function SimpleUI() {
               color: "#000000ff",
               fontSize: "16px",
               fontWeight: "bold",
-              textAlign: "center",
               fontFamily: "'Roboto', sans-serif",
             }}
           >
@@ -361,7 +318,6 @@ export default function SimpleUI() {
               color: "#000000ff",
               fontSize: "12px",
               fontWeight: "bold",
-              textAlign: "center",
               fontFamily: "'Roboto', sans-serif",
             }}
           >
@@ -372,7 +328,6 @@ export default function SimpleUI() {
               color: "#000000ff",
               fontSize: "12px",
               fontWeight: "bold",
-              textAlign: "center",
               fontFamily: "'Roboto', sans-serif",
             }}
           >
