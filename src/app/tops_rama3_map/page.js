@@ -7,7 +7,7 @@ import { keyframes } from "@emotion/react";
 import { fetchData } from "./fetchData";
 
 const GAS_URL =
-  "https://script.google.com/macros/s/AKfycbzepwpESHIzuyG_5oKOFFsio9BmfN88Wa57EYHGy6RMEl3HYKZd8J8gO60Mu87NosdU5Q/exec";
+  "https://script.google.com/macros/s/AKfycbzepwpESHIzuyG_5oKOFFsio9BmfN88Wa57EYHGy6RMEl3HYKZd8J8gO60Mu87NosdU5Q/exec?sheet=Tops%20Rama3";
 
 const darkTheme = createTheme({
   palette: { mode: "dark", background: { default: "#000000" } },
@@ -33,9 +33,22 @@ export default function SimpleUI() {
     50% { box-shadow: 0 0 15px 6px rgba(255,165,0,.9); }
     100% { box-shadow: 0 0 5px 2px rgba(255,165,0,.2); }
   `;
+  const [pos, setPos] = useState(null);
+
+  const onMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const yTop = ((e.clientY - rect.top) / rect.height) * 100;
+    const clamp = (v) => Math.max(0, Math.min(100, v));
+    setPos({
+      x: clamp(x).toFixed(2),
+      yTop: clamp(yTop).toFixed(2),
+      yBottom: (100 - clamp(yTop)).toFixed(2),
+    });
+  };
 
   useEffect(() => {
-    const uniqueKey = "ladpao";
+    const uniqueKey = "Rama3";
 
     const fetchLayoutFirstThenStatus = async () => {
       try {
@@ -141,8 +154,10 @@ export default function SimpleUI() {
   return (
     <ThemeProvider theme={darkTheme}>
       <Box
+        onMouseMove={onMove}
+        onMouseLeave={() => setPos(null)}
         sx={{
-          backgroundImage: "url('tops_ladpao.png')",
+          backgroundImage: "url('Tops_Rama3.png')",
           backgroundPosition: "center",
           backgroundSize: "contain",
           backgroundRepeat: "no-repeat",
@@ -151,6 +166,26 @@ export default function SimpleUI() {
           position: "relative",
         }}
       >
+        {pos && (
+          <Box
+            sx={{
+              position: "absolute",
+              left: 8,
+              top: 8,
+              px: 1,
+              py: 0.5,
+              bgcolor: "rgba(0,0,0,0.6)",
+              borderRadius: 1,
+            }}
+          >
+            <Typography
+              variant="caption"
+              sx={{ color: "#fff", fontFamily: "monospace" }}
+            >
+              x: {pos.x}% | y(bottom): {pos.yBottom}%
+            </Typography>
+          </Box>
+        )}
         {items.map((item, index) => (
           <Box
             key={index}
@@ -312,7 +347,7 @@ export default function SimpleUI() {
               fontFamily: "'Roboto', sans-serif",
             }}
           >
-            Tops Ladpao
+            Tops Rama 3
           </Typography>
           <Typography
             sx={{
