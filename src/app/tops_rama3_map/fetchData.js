@@ -6,7 +6,7 @@ const username = process.env.USERNAMEOMG;
 const password = process.env.PASSWORDOMG;
 
 const apiUrl =
-  'https://stacks.targetr.net/rest-api/v1/screens?filter=screenId=="020035EB40C7" || screenId=="020037E82DD9"|| screenId=="02006DCF252D"|| screenId=="02008CE90EE1"|| screenId=="0200A178D582"|| screenId=="0200C0FFD975"|| screenId=="0200C8DF1833"|| screenId=="0200DC921FEE"|| screenId=="0200E3318561"|| screenId=="0200F03AC791"';
+  'https://stacks.targetr.net/rest-api/v1/screens?groupId=13CF174ED72274';
 
 const ONE_HOUR_IN_MS = 1 * 60 * 60 * 1000;
 const ONE_DAYS_IN_MS = 24 * 60 * 60 * 1000;

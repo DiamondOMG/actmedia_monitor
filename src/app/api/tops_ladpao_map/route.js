@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 const username = process.env.USERNAMEOMG;
 const password = process.env.PASSWORDOMG;
 
-const apiUrl = "https://stacks.targetr.net/rest-api/v1/screens?filter=screenId==\"06BC202514EE\" || screenId==\"06BC2025152F\"|| screenId==\"2002AF3C13C4\"|| screenId==\"06BC202514D4\"|| screenId==\"6021C0CB28F8\"|| screenId==\"06BC2025120B\"";
+const apiUrl = "https://stacks.targetr.net/rest-api/v1/screens?groupId=13CF174ED72274";
 
 const ONE_HOUR_IN_MS = 1 * 60 * 60 * 1000;
 const ONE_DAYS_IN_MS = 24 * 60 * 60 * 1000;
