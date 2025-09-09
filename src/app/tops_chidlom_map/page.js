@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Box, ThemeProvider, createTheme, Typography } from "@mui/material";
 import axios from "axios";
 import { keyframes } from "@emotion/react";
+import { fetchData } from "../tops_chidlom_map/fetchData";
 
 const GAS_URL =
   "https://script.google.com/macros/s/AKfycbzepwpESHIzuyG_5oKOFFsio9BmfN88Wa57EYHGy6RMEl3HYKZd8J8gO60Mu87NosdU5Q/exec?sheet=Tops%20Chidlom";
@@ -75,9 +76,7 @@ export default function SimpleUI() {
         setItems(layoutItems);
 
         // 2) Fetch status and map to items
-        const { data: statusList } = await axios.get("/api/tops_chidlom_map", {
-          timeout: 15000,
-        });
+        const statusList = await fetchData();
         const updatedItems = layoutItems.map((item) => {
           const found = Array.isArray(statusList)
             ? statusList.find((x) => x.id === item.macaddress)

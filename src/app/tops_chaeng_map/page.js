@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Box, ThemeProvider, createTheme, Typography } from "@mui/material";
 import axios from "axios";
 import { keyframes } from "@emotion/react";
+import { fetchData } from "../tops_chaeng_map/fetchData";
 
 const GAS_URL =
   "https://script.google.com/macros/s/AKfycbzepwpESHIzuyG_5oKOFFsio9BmfN88Wa57EYHGy6RMEl3HYKZd8J8gO60Mu87NosdU5Q/exec?sheet=Tops%20Chaeng";
@@ -56,7 +57,7 @@ export default function SimpleUI() {
   useEffect(() => {
     const uniqueKey = "chaeng";
 
-    const fetchData = async () => {
+    const fetchLayoutFirstThenStatus = async () => {
       try {
         // 1) Fetch layout from GAS first
         const { data: layout } = await axios.get(GAS_URL, {
@@ -80,17 +81,16 @@ export default function SimpleUI() {
         setItems(layoutItems);
 
         // 2) Fetch status and map to items
-        const response = await axios.get("/api/tops_chaeng_map");
-        const apiData = response.data;
+        const statusList = await fetchData();
         const fetchTime = new Date();
 
         const updatedItems = layoutItems.map((item) => {
-          const apiItem = apiData.find(
-            (apiItem) => apiItem.id === item.macaddress
-          );
+          const found = Array.isArray(statusList)
+            ? statusList.find((x) => x.id === item.macaddress)
+            : null;
           return {
             ...item,
-            status: apiItem ? apiItem.status : "No Macaddress",
+            status: found ? found.status : "No Macaddress",
           };
         });
 
@@ -155,8 +155,8 @@ export default function SimpleUI() {
       }
     };
 
-    fetchData();
-    const fetchInterval = setInterval(fetchData, 10 * 60 * 1000);
+    fetchLayoutFirstThenStatus();
+    const fetchInterval = setInterval(fetchLayoutFirstThenStatus, 10 * 60 * 1000);
     return () => clearInterval(fetchInterval);
   }, []);
 

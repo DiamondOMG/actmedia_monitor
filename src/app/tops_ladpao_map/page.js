@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Box, ThemeProvider, createTheme, Typography } from "@mui/material";
 import axios from "axios";
 import { keyframes } from "@emotion/react";
+import { fetchData } from "./fetchData";
 
 const GAS_URL =
   "https://script.google.com/macros/s/AKfycbzepwpESHIzuyG_5oKOFFsio9BmfN88Wa57EYHGy6RMEl3HYKZd8J8gO60Mu87NosdU5Q/exec";
@@ -63,9 +64,7 @@ export default function SimpleUI() {
         setItems(layoutItems); // ตั้งตำแหน่งก่อน
 
         // 2) แล้วค่อยดึงสถานะมาแมพทีหลัง
-        const { data: statusList } = await axios.get("/api/tops_ladpao_map", {
-          timeout: 15000,
-        });
+        const statusList = await fetchData();
         const updatedItems = layoutItems.map((item) => {
           const found = Array.isArray(statusList)
             ? statusList.find((x) => x.id === item.macaddress)
