@@ -46,11 +46,13 @@ export default function SimpleUI() {
           timeout: 30000,
           withCredentials: false,
         });
-        const layoutItems = (Array.isArray(layout) ? layout : []).map((it) => ({
+        const layoutMapping = Array.isArray(layout?.mapping)
+          ? layout.mapping
+          : [];
+        const layoutItems = layoutMapping.map((it) => ({
           name: it.name ?? "screen",
           macaddress: it.macaddress ?? "",
           number: String(it.number ?? ""),
-          // GAS ให้ 0..1 -> แปลงเป็นเปอร์เซ็นต์ string สำหรับ CSS
           position_x:
             typeof it.position_x === "number"
               ? `${it.position_x * 100}%`

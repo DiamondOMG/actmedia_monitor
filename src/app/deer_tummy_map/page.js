@@ -64,7 +64,10 @@ export default function SimpleUI() {
           timeout: 30000,
           withCredentials: false,
         });
-        const layoutItems = (Array.isArray(layout) ? layout : []).map((it) => ({
+        const layoutMapping = Array.isArray(layout?.mapping)
+          ? layout.mapping
+          : [];
+        const layoutItems = layoutMapping.map((it) => ({
           name: it.name ?? "screen",
           macaddress: it.macaddress ?? "",
           number: String(it.number ?? ""),
@@ -76,7 +79,7 @@ export default function SimpleUI() {
             typeof it.position_y === "number"
               ? `${it.position_y * 100}%`
               : "0%",
-          status: "No Macaddress",
+          status: "Loading...",
         }));
         setItems(layoutItems);
 
@@ -156,7 +159,10 @@ export default function SimpleUI() {
     };
 
     fetchLayoutFirstThenStatus();
-    const fetchInterval = setInterval(fetchLayoutFirstThenStatus, 10 * 60 * 1000);
+    const fetchInterval = setInterval(
+      fetchLayoutFirstThenStatus,
+      10 * 60 * 1000
+    );
     return () => clearInterval(fetchInterval);
   }, []);
 

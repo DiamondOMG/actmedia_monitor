@@ -59,7 +59,10 @@ export default function SimpleUI() {
           timeout: 30000,
           withCredentials: false,
         });
-        const layoutItems = (Array.isArray(layout) ? layout : []).map((it) => ({
+        const layoutMapping = Array.isArray(layout?.mapping)
+          ? layout.mapping
+          : [];
+        const layoutItems = layoutMapping.map((it) => ({
           name: it.name ?? "screen",
           macaddress: it.macaddress ?? "",
           number: String(it.number ?? ""),

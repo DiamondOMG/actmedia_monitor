@@ -5,9 +5,7 @@ import { Box, ThemeProvider, createTheme, Typography } from "@mui/material";
 import axios from "axios";
 import { keyframes } from "@emotion/react";
 import { fetchData } from "./fetchData";
-
-const GAS_URL =
-  "https://script.google.com/macros/s/AKfycbzepwpESHIzuyG_5oKOFFsio9BmfN88Wa57EYHGy6RMEl3HYKZd8J8gO60Mu87NosdU5Q/exec?sheet=Tops%20Rama3";
+import { useParams } from "next/navigation";
 
 const darkTheme = createTheme({
   palette: { mode: "dark", background: { default: "#000000" } },
@@ -15,6 +13,8 @@ const darkTheme = createTheme({
 });
 
 export default function SimpleUI() {
+  const params = useParams();
+  const GAS_URL = `https://script.google.com/macros/s/AKfycbzepwpESHIzuyG_5oKOFFsio9BmfN88Wa57EYHGy6RMEl3HYKZd8J8gO60Mu87NosdU5Q/exec?sheet=${params.name_map}`;
   const [items, setItems] = useState([]); // จะถูกแทนด้วยข้อมูลจาก GAS เท่านั้น
   const [counts, setCounts] = useState({
     online: 0,
@@ -48,7 +48,7 @@ export default function SimpleUI() {
   };
 
   useEffect(() => {
-    const uniqueKey = "Rama3";
+    const uniqueKey = "tiwanon";
 
     const fetchLayoutFirstThenStatus = async () => {
       try {
@@ -159,7 +159,7 @@ export default function SimpleUI() {
         onMouseMove={onMove}
         onMouseLeave={() => setPos(null)}
         sx={{
-          backgroundImage: "url('Tops_Rama3.png')",
+          backgroundImage: "url('/Rest Go Tiwanon.png')",
           backgroundPosition: "center",
           backgroundSize: "contain",
           backgroundRepeat: "no-repeat",
