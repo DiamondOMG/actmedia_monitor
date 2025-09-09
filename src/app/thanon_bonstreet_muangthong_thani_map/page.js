@@ -48,7 +48,7 @@ export default function SimpleUI() {
   };
 
   useEffect(() => {
-    const uniqueKey = "Rama3";
+    const uniqueKey = "thanon_bonstreet_muangthong_thani";
 
     const fetchLayoutFirstThenStatus = async () => {
       try {

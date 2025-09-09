@@ -48,7 +48,7 @@ export default function SimpleUI() {
   };
 
   useEffect(() => {
-    const uniqueKey = "Rama3";
+    const uniqueKey = "key_chaengwat"; // เปลี่ยนตามแต่ละสาขา
 
     const fetchLayoutFirstThenStatus = async () => {
       try {
