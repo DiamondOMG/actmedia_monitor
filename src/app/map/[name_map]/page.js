@@ -264,6 +264,8 @@ export default function SimpleUI() {
                       left: "1%",
                       bottom: "1%",
                       fontFamily: "'Roboto', sans-serif",
+                      backgroundColor: "rgba(251, 251, 251, 0.79)",
+                      borderRadius: "8px",
                     }}
                   >
                     <Typography fontSize={17} fontWeight="bold">
@@ -346,6 +348,8 @@ export default function SimpleUI() {
                       alignItems: "center",
                       justifyItems: "start",
                       fontSize: ".7rem",
+                      backgroundColor: "rgba(251, 251, 251, 0.79)",
+                      borderRadius: "8px",
                     }}
                   >
                     {items.map((item, index) => (
@@ -421,6 +425,8 @@ export default function SimpleUI() {
                       left: "1%",
                       bottom: "1%",
                       fontFamily: "'Roboto', sans-serif",
+                      backgroundColor: "rgba(251, 251, 251, 0.79)",
+                      borderRadius: "8px",
                     }}
                   >
                     <Typography fontSize={17} fontWeight="bold">
@@ -526,7 +532,7 @@ export default function SimpleUI() {
                       left: "30%",
                       bottom: "90%",
                       gap: "16px",
-                      backgroundColor: "rgba(239, 41, 41, 0.7)",
+                      backgroundColor: "rgba(251, 251, 251, 0.79)",
                       borderRadius: "8px",
                       padding: "2px",
                     }}
