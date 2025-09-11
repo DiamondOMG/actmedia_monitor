@@ -6,7 +6,7 @@ const username = process.env.USERNAMEOMG;
 const password = process.env.PASSWORDOMG;
 
 const apiUrl =
-  'https://stacks.targetr.net/rest-api/v1/screens?groupId=13CF174ED72274';
+  'https://stacks.targetr.net/rest-api/v1/screens?groupId=13C8A1801C5F0A';
 
 const ONE_HOUR_IN_MS = 1 * 60 * 60 * 1000;
 const ONE_DAYS_IN_MS = 24 * 60 * 60 * 1000;

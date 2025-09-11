@@ -15,13 +15,18 @@ const darkTheme = createTheme({
 export default function SimpleUI() {
   const params = useParams();
   const GAS_URL = `https://script.google.com/macros/s/AKfycbzepwpESHIzuyG_5oKOFFsio9BmfN88Wa57EYHGy6RMEl3HYKZd8J8gO60Mu87NosdU5Q/exec?sheet=${params.name_map}`;
-  const [items, setItems] = useState([]); // จะถูกแทนด้วยข้อมูลจาก GAS เท่านั้น
+  const [items, setItems] = useState([]);
   const [counts, setCounts] = useState({
     online: 0,
     offline1Hour: 0,
     offline1Day: 0,
   });
   const [lastFetchTime, setLastFetchTime] = useState(null);
+  const [backgroundImage, setBackgroundImage] = useState(
+    "url('/Tops_Rama_3.png')"
+  );
+  const [locationName, setLocationName] = useState("Loading...");
+  const [formation, setFormation] = useState(null);
 
   const blinkRed = keyframes`
     0% { box-shadow: 0 0 5px 2px rgba(255,0,0,.2); }
@@ -48,15 +53,14 @@ export default function SimpleUI() {
   };
 
   useEffect(() => {
-    const uniqueKey = "tiwanon";
-
     const fetchLayoutFirstThenStatus = async () => {
       try {
-        // 1) ดึงแผนผังจาก GAS (อันนี้ต้องเสร็จก่อน)
+        // 1) ดึงแผนผังจาก GAS
         const { data: layout } = await axios.get(GAS_URL, {
           timeout: 30000,
           withCredentials: false,
         });
+        const uniqueKey = layout.name.toLowerCase().replace(/\s+/g, "");
         const layoutMapping = Array.isArray(layout?.mapping)
           ? layout.mapping
           : [];
@@ -74,9 +78,12 @@ export default function SimpleUI() {
               : "0%",
           status: "Loading...",
         }));
-        setItems(layoutItems); // ตั้งตำแหน่งก่อน
+        setItems(layoutItems);
+        setBackgroundImage(`url('${layout.image}')`);
+        setLocationName(layout.name);
+        setFormation(layout.formation);
 
-        // 2) แล้วค่อยดึงสถานะมาแมพทีหลัง
+        // 2) ดึงสถานะ
         const statusList = await fetchData();
         const updatedItems = layoutItems.map((item) => {
           const found = Array.isArray(statusList)
@@ -101,18 +108,20 @@ export default function SimpleUI() {
         const now = new Date();
         setLastFetchTime(now);
 
-        // cache ทั้งก้อน
+        // cache
         localStorage.setItem(
           uniqueKey,
           JSON.stringify({
             items: updatedItems,
             counts: { online, offline1Hour: off1h, offline1Day: off1d },
             lastFetchTime: now.toISOString(),
+            backgroundImage: layout.image,
+            locationName: layout.name,
+            formation: layout.formation,
           })
         );
       } catch (err) {
         console.error("Fetch error:", err);
-        // fallback จาก cache
         const cached = localStorage.getItem(uniqueKey);
         if (cached) {
           try {
@@ -124,21 +133,25 @@ export default function SimpleUI() {
             setLastFetchTime(
               parsed.lastFetchTime ? new Date(parsed.lastFetchTime) : null
             );
+            setBackgroundImage(
+              parsed.backgroundImage || "url('/Tops_Rama_3.png')"
+            );
+            setLocationName(parsed.locationName || "Tops Rama 3");
+            setFormation(parsed.formation || null);
           } catch (e) {
             console.error("Cache parse error:", e);
           }
         } else {
-          // ไม่มี cache: แสดง placeholder
           setItems((prev) =>
             prev.map((it) => ({ ...it, status: "Failed to fetch" }))
           );
           setCounts({ online: 0, offline1Hour: 0, offline1Day: 0 });
           setLastFetchTime(null);
+          setFormation(null);
         }
       }
     };
 
-    // เรียกทันที และตั้งให้รีเฟรชทุก 10 นาที (เรียกแบบลำดับเดิม)
     fetchLayoutFirstThenStatus();
     const id = setInterval(fetchLayoutFirstThenStatus, 10 * 60 * 1000);
     return () => clearInterval(id);
@@ -159,7 +172,7 @@ export default function SimpleUI() {
         onMouseMove={onMove}
         onMouseLeave={() => setPos(null)}
         sx={{
-          backgroundImage: "url('/Rest Go Tiwanon.png')",
+          backgroundImage: backgroundImage,
           backgroundPosition: "center",
           backgroundSize: "contain",
           backgroundRepeat: "no-repeat",
@@ -193,8 +206,8 @@ export default function SimpleUI() {
             key={index}
             sx={{
               position: "absolute",
-              left: item.position_x, // e.g. "62%"
-              bottom: item.position_y, // e.g. "46%"
+              left: item.position_x,
+              bottom: item.position_y,
               width: "18px",
               height: "18px",
               borderRadius: "50%",
@@ -231,147 +244,333 @@ export default function SimpleUI() {
           </Box>
         ))}
 
-        {/* Legend + counters */}
-        <Box
-          sx={{
-            width: 100,
-            height: 150,
-            fontSize: 12,
-            fontWeight: "bold",
-            textAlign: "center",
-            position: "absolute",
-            left: "1%",
-            bottom: "1%",
-            fontFamily: "'Roboto', sans-serif",
-          }}
-        >
-          <Typography fontSize={17} fontWeight="bold">
-            Play Box
-          </Typography>
-          <Box
-            sx={{ display: "flex", alignItems: "center", position: "relative" }}
-          >
-            <Typography>{counts.online}</Typography>
-            <Box
-              sx={{
-                width: 20,
-                height: 20,
-                borderRadius: "50%",
-                backgroundColor: "green",
-                position: "absolute",
-                marginLeft: "25px",
-              }}
-            />
-          </Box>
-          <Box sx={{ height: 20 }} />
-          <Box
-            sx={{ display: "flex", alignItems: "center", position: "relative" }}
-          >
-            <Typography>{counts.offline1Hour}</Typography>
-            <Box
-              sx={{
-                width: 20,
-                height: 20,
-                borderRadius: "50%",
-                backgroundColor: "orange",
-                position: "absolute",
-                marginLeft: "25px",
-              }}
-            />
-          </Box>
-          <Box sx={{ height: 20 }} />
-          <Box
-            sx={{ display: "flex", alignItems: "center", position: "relative" }}
-          >
-            <Typography>{counts.offline1Day}</Typography>
-            <Box
-              sx={{
-                width: 20,
-                height: 20,
-                borderRadius: "50%",
-                backgroundColor: "red",
-                position: "absolute",
-                marginLeft: "25px",
-              }}
-            />
-          </Box>
-          <Box sx={{ height: 20 }} />
-        </Box>
+        {/* Legend + counters และ Tail list ตาม formation */}
+        {(() => {
+          switch (formation) {
+            case 1:
+            case null:
+            case undefined:
+              return (
+                <>
+                  {/* Legend + counters */}
+                  <Box
+                    sx={{
+                      width: 100,
+                      height: 150,
+                      fontSize: 12,
+                      fontWeight: "bold",
+                      textAlign: "center",
+                      position: "absolute",
+                      left: "1%",
+                      bottom: "1%",
+                      fontFamily: "'Roboto', sans-serif",
+                    }}
+                  >
+                    <Typography fontSize={17} fontWeight="bold">
+                      Play Box
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        position: "relative",
+                      }}
+                    >
+                      <Typography>{counts.online}</Typography>
+                      <Box
+                        sx={{
+                          width: 20,
+                          height: 20,
+                          borderRadius: "50%",
+                          backgroundColor: "green",
+                          position: "absolute",
+                          marginLeft: "25px",
+                        }}
+                      />
+                    </Box>
+                    <Box sx={{ height: 20 }} />
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        position: "relative",
+                      }}
+                    >
+                      <Typography>{counts.offline1Hour}</Typography>
+                      <Box
+                        sx={{
+                          width: 20,
+                          height: 20,
+                          borderRadius: "50%",
+                          backgroundColor: "orange",
+                          position: "absolute",
+                          marginLeft: "25px",
+                        }}
+                      />
+                    </Box>
+                    <Box sx={{ height: 20 }} />
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        position: "relative",
+                      }}
+                    >
+                      <Typography>{counts.offline1Day}</Typography>
+                      <Box
+                        sx={{
+                          width: 20,
+                          height: 20,
+                          borderRadius: "50%",
+                          backgroundColor: "red",
+                          position: "absolute",
+                          marginLeft: "25px",
+                        }}
+                      />
+                    </Box>
+                    <Box sx={{ height: 20 }} />
+                  </Box>
 
-        {/* Tail list */}
-        <Box
-          sx={{
-            width: 320,
-            height: 150,
-            position: "absolute",
-            left: "12%",
-            bottom: "1%",
-            display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
-            gridTemplateRows: "repeat(7, 1fr)",
-            gap: "4px",
-            alignItems: "center",
-            justifyItems: "start",
-            fontSize: ".7rem",
-          }}
-        >
-          {items.map((item, index) => (
-            <Box
-              key={index}
-              sx={{
-                gridColumn: `${Math.floor(index / 7) + 1}`,
-                gridRow: `${(index % 7) + 1}`,
-              }}
-            >
-              <Typography sx={{ fontSize: "inherit" }}>
-                {item.number}. {item.macaddress.slice(-4)}
-              </Typography>
-            </Box>
-          ))}
-        </Box>
-
-        {/* Title + last fetch */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-            position: "absolute",
-            left: "1%",
-            bottom: "80%",
-          }}
-        >
-          <Typography
-            sx={{
-              color: "#000000ff",
-              fontSize: 16,
-              fontWeight: "bold",
-              fontFamily: "'Roboto', sans-serif",
-            }}
-          >
-            Tops Rama 3
-          </Typography>
-          <Typography
-            sx={{
-              color: "#000000ff",
-              fontSize: 12,
-              fontWeight: "bold",
-              fontFamily: "'Roboto', sans-serif",
-            }}
-          >
-            Last Fetch: {formatTime(lastFetchTime)}
-          </Typography>
-          <Typography
-            sx={{
-              color: "#000000ff",
-              fontSize: 12,
-              fontWeight: "bold",
-              fontFamily: "'Roboto', sans-serif",
-            }}
-          >
-            Refresh every 10 min
-          </Typography>
-        </Box>
+                  {/* Tail list */}
+                  <Box
+                    sx={{
+                      width: 250,
+                      height: 150,
+                      position: "absolute",
+                      left: "1%",
+                      bottom: "50%",
+                      display: "grid",
+                      gridTemplateColumns: "repeat(4, 1fr)",
+                      gridTemplateRows: "repeat(7, 1fr)",
+                      gap: "4px",
+                      alignItems: "center",
+                      justifyItems: "start",
+                      fontSize: ".7rem",
+                    }}
+                  >
+                    {items.map((item, index) => (
+                      <Box
+                        key={index}
+                        sx={{
+                          gridColumn: `${Math.floor(index / 12) + 1}`,
+                          gridRow: `${(index % 12) + 1}`,
+                        }}
+                      >
+                        <Typography sx={{ fontSize: "inherit" }}>
+                          {item.number}. {item.macaddress.slice(-4)}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                  {/* Title + last fetch */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "flex-start",
+                      position: "absolute",
+                      left: "1%",
+                      bottom: "80%",
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        color: "#000000ff",
+                        fontSize: 16,
+                        fontWeight: "bold",
+                        fontFamily: "'Roboto', sans-serif",
+                      }}
+                    >
+                      {locationName}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        color: "#000000ff",
+                        fontSize: 12,
+                        fontWeight: "bold",
+                        fontFamily: "'Roboto', sans-serif",
+                      }}
+                    >
+                      Last Fetch: {formatTime(lastFetchTime)}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        color: "#000000ff",
+                        fontSize: 12,
+                        fontWeight: "bold",
+                        fontFamily: "'Roboto', sans-serif",
+                      }}
+                    >
+                      Refresh every 10 min
+                    </Typography>
+                  </Box>
+                </>
+              );
+            case 2:
+              return (
+                <>
+                  {/* Legend + counters */}
+                  <Box
+                    sx={{
+                      width: "100px",
+                      height: "150px",
+                      fontSize: "12px",
+                      fontWeight: "bold",
+                      textAlign: "center",
+                      position: "absolute",
+                      left: "1%",
+                      bottom: "1%",
+                      fontFamily: "'Roboto', sans-serif",
+                    }}
+                  >
+                    <Typography fontSize={17} fontWeight="bold">
+                      Play Box
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        position: "relative",
+                      }}
+                    >
+                      <Typography>{counts.online}</Typography>
+                      <Box
+                        sx={{
+                          width: "20px",
+                          height: "20px",
+                          borderRadius: "50%",
+                          backgroundColor: "green",
+                          position: "absolute",
+                          marginLeft: "25px",
+                        }}
+                      />
+                    </Box>
+                    <Box sx={{ height: "20px" }} />
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        position: "relative",
+                      }}
+                    >
+                      <Typography>{counts.offline1Hour}</Typography>
+                      <Box
+                        sx={{
+                          width: "20px",
+                          height: "20px",
+                          borderRadius: "50%",
+                          backgroundColor: "orange",
+                          position: "absolute",
+                          marginLeft: "25px",
+                        }}
+                      />
+                    </Box>
+                    <Box sx={{ height: "20px" }} />
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        position: "relative",
+                      }}
+                    >
+                      <Typography>{counts.offline1Day}</Typography>
+                      <Box
+                        sx={{
+                          width: "20px",
+                          height: "20px",
+                          borderRadius: "50%",
+                          backgroundColor: "red",
+                          position: "absolute",
+                          marginLeft: "25px",
+                        }}
+                      />
+                    </Box>
+                    <Box sx={{ height: "20px" }} />
+                  </Box>
+                  <Box
+                    sx={{
+                      width: "320px",
+                      height: "100px",
+                      position: "absolute",
+                      left: "12%",
+                      bottom: "1%",
+                      display: "grid",
+                      gridTemplateColumns: "repeat(4, 1fr)",
+                      gridTemplateRows: "repeat(7, 1fr)",
+                      gap: "4px",
+                      alignItems: "center",
+                      justifyItems: "start",
+                      fontSize: "0.7rem",
+                    }}
+                  >
+                    {items.map((item, index) => (
+                      <Box
+                        key={index}
+                        sx={{
+                          gridColumn: `${Math.floor(index / 5) + 1}`,
+                          gridRow: `${(index % 5) + 1}`,
+                        }}
+                      >
+                        <Typography sx={{ fontSize: "inherit" }}>
+                          {item.number} = {item.macaddress.slice(-4)}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      position: "absolute",
+                      left: "30%",
+                      bottom: "90%",
+                      gap: "16px",
+                      backgroundColor: "rgba(239, 41, 41, 0.7)",
+                      borderRadius: "8px",
+                      padding: "2px",
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        color: "#000000ff",
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                        textAlign: "center",
+                        fontFamily: "'Roboto', sans-serif",
+                      }}
+                    >
+                      {locationName}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        color: "#000000ff",
+                        fontSize: "12px",
+                        fontWeight: "bold",
+                        textAlign: "center",
+                        fontFamily: "'Roboto', sans-serif",
+                      }}
+                    >
+                      Last Fetch: {formatTime(lastFetchTime)}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        color: "#000000ff",
+                        fontSize: "12px",
+                        fontWeight: "bold",
+                        textAlign: "center",
+                        fontFamily: "'Roboto', sans-serif",
+                      }}
+                    >
+                      Refresh every 10 min
+                    </Typography>
+                  </Box>
+                </>
+              );
+            default:
+              return null;
+          }
+        })()}
       </Box>
     </ThemeProvider>
   );
