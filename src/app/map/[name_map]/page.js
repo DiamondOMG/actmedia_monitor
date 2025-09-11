@@ -495,26 +495,26 @@ export default function SimpleUI() {
                   </Box>
                   <Box
                     sx={{
-                      width: "320px",
                       height: "100px",
                       position: "absolute",
                       left: "12%",
                       bottom: "1%",
                       display: "grid",
-                      gridTemplateColumns: "repeat(4, 1fr)",
                       gridTemplateRows: "repeat(7, 1fr)",
-                      gap: "4px",
                       alignItems: "center",
                       justifyItems: "start",
                       fontSize: "0.7rem",
+                      backgroundColor: "rgba(251, 251, 251, 0.79)",
+                      borderRadius: "8px",
+                      columnGap: "30px",
                     }}
                   >
                     {items.map((item, index) => (
                       <Box
                         key={index}
                         sx={{
-                          gridColumn: `${Math.floor(index / 5) + 1}`,
-                          gridRow: `${(index % 5) + 1}`,
+                          gridColumn: `${Math.floor(index / 6) + 1}`,
+                          gridRow: `${(index % 6) + 1}`,
                         }}
                       >
                         <Typography sx={{ fontSize: "inherit" }}>
