@@ -29,7 +29,7 @@ const darkTheme = createTheme({
     h5: { fontSize: "1rem", fontWeight: 500 }, // ปรับขนาดตัวเลขใน status bar
     h6: { fontSize: "1.1rem", fontWeight: 400 }, // ขนาดหัวข้อหลัก
     body1: { fontSize: "0.85rem" },
-    body2: { fontSize: "0.7rem", lineHeight: 1.2 }, // ขนาดข้อความย่อย
+    body2: { fontSize: "0.7rem", lineHeight: 1.2 }, // ขนาดข้อความย่อยมากๆ
   },
 });
 
