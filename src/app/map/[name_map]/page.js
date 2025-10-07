@@ -65,7 +65,7 @@ export default function SimpleUI() {
           ? layout.mapping
           : [];
         const layoutItems = layoutMapping.map((it) => ({
-          name: it.name ?? "screen",
+          name: it.type ?? "screen",
           macaddress: it.macaddress ?? "",
           number: String(it.number ?? ""),
           position_x:
